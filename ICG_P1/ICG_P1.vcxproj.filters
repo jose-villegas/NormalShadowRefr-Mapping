@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="OBJ Loader">
+      <UniqueIdentifier>{90423e6a-db32-4a49-bbe8-be2d565ede85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OBJ Loader\Header Files">
+      <UniqueIdentifier>{c967cc3d-0d36-4fcc-adde-2dc32ec1a30b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OBJ Loader\Source Files">
+      <UniqueIdentifier>{86dde26c-3538-4ac5-bbea-bc7a9f788e8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects">
+      <UniqueIdentifier>{3b95a713-d158-401f-ba68-72e8d37757a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Source Files">
+      <UniqueIdentifier>{0efa24f1-2eea-4a05-89d9-ec532f132c00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Header Files">
+      <UniqueIdentifier>{f4ba905f-8571-4ffd-99ee-1776f736ebf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+    <Text Include="normal_mapping.vertex">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OBJLoader\bitmap.h">
+      <Filter>OBJ Loader\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OBJLoader\model_obj.h">
+      <Filter>OBJ Loader\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VisibleGameObject.h">
+      <Filter>Objects\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Objects\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DefaultCamera.h">
+      <Filter>Objects\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelVBO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ICG_P1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OBJLoader\bitmap.cpp">
+      <Filter>OBJ Loader\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OBJLoader\model_obj.cpp">
+      <Filter>OBJ Loader\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VisibleGameObject.cpp">
+      <Filter>Objects\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Objects\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultCamera.cpp">
+      <Filter>Objects\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelVBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="phong_sh.pixel">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="phong_sh.vertex">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="blinnphong.pixel">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="blinnphong.vertex">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="cook_torrance.vertex">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="cook_torrance.pixel">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="normal_mapping.pixel">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shadow_mapping.pixel">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shadow_mapping.vertex">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="main_shader.pixel">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="main_shader.vertex">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
