@@ -39,13 +39,12 @@ GLuint LoadShaderFromFile(std::string vertexFile, std::string pixelFile)
 
 void MainEngine::LoadShaders()
 {
-    shaders["Blinn-Phong"] = LoadShaderFromFile("blinnphong.vertex", "blinnphong.pixel");
-    shaders["Cook-Torrance"] = LoadShaderFromFile("cook_torrance.vertex", "cook_torrance.pixel");
-    shaders["Normal-Mapping"] = LoadShaderFromFile("normal_mapping.vertex", "normal_mapping.pixel");
-    shaders["Shadow-Mapping"] = LoadShaderFromFile("shadow_mapping.vertex", "shadow_mapping.pixel");
-    shaders["MainShader"] = LoadShaderFromFile("main_shader.vertex", "main_shader.pixel");
-    shaders["Depth"] = LoadShaderFromFile("depth.vertex", "depth.pixel");
-    shaders["DepthRender"] = LoadShaderFromFile("depth_render.vertex", "depth_render.pixel");
+    shaders["Blinn-Phong"] = LoadShaderFromFile("blinnphong.vert", "blinnphong.frag");
+    shaders["Cook-Torrance"] = LoadShaderFromFile("cook_torrance.vert", "cook_torrance.frag");
+    shaders["Normal-Mapping"] = LoadShaderFromFile("normal_mapping.vert", "normal_mapping.frag");
+    shaders["Shadow-Mapping"] = LoadShaderFromFile("shadow_mapping.vert", "shadow_mapping.frag");
+    shaders["MainShader"] = LoadShaderFromFile("main_shader.vert", "main_shader.frag");
+    shaders["Depth"] = LoadShaderFromFile("depth.vert", "depth.frag");
 }
 
 void MainEngine::CreateNullTexture(int width, int height)
@@ -69,7 +68,7 @@ void MainEngine::CreateShadowFBO(int width, int heigh)
     m_shadowMapFBO.Load(width, heigh);
 }
 
-bool MainEngine::_enableShader = true;
+bool MainEngine::_enableBumpMapping = true;
 
 ShadowMapFBO MainEngine::m_shadowMapFBO;
 

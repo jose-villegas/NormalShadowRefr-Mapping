@@ -19,7 +19,7 @@ class GraphicSettings
         static void setDistanceDebris(float val) { distanceDebris = val; }
         static float getLifetimeProjectiles() { return lifetimeProjectiles; }
         static void setLifetimeProjectiles(float val) { lifetimeProjectiles = val; }
-		static void setWidthHeight(unsigned short w, unsigned short h);
+        static void setWidthHeight(unsigned short w, unsigned short h);
     private:
         static float anisotrophyValue;
         static float renderWidth;
@@ -28,4 +28,3 @@ class GraphicSettings
         static float lifetimeProjectiles;
         static sf::ContextSettings settings;
 };
-

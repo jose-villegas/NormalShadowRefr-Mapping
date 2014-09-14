@@ -8,15 +8,15 @@ class Light
         float position[4];
         float direction[4];
         float ambient[4];
-		float diffuse[4];
-		float specular[4];
+        float diffuse[4];
+        float specular[4];
         float intensity;
-		float const_att;
-		float linear_att;
-		float quad_att;
-		float cutoff;
-		float spot_exp;
-		bool active;
+        float const_att;
+        float linear_att;
+        float quad_att;
+        float cutoff;
+        float spot_exp;
+        bool active;
         int lightType;
 
     public:
@@ -31,6 +31,4 @@ class Light
         void Disable(GLenum lightN);
         void Draw(GLenum lightN);
         void Update(float elapsedTime, sf::Event input);
-
 };
-

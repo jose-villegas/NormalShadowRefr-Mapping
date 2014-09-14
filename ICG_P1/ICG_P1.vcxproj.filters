@@ -34,7 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="normal_mapping.vertex">
+    <Text Include="normal_mapping.vert">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
@@ -115,43 +115,37 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="blinnphong.pixel">
+    <None Include="blinnphong.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="blinnphong.vertex">
+    <None Include="cook_torrance.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="cook_torrance.vertex">
+    <None Include="depth.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="cook_torrance.pixel">
+    <None Include="main_shader.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="normal_mapping.pixel">
+    <None Include="normal_mapping.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shadow_mapping.pixel">
+    <None Include="shadow_mapping.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shadow_mapping.vertex">
+    <None Include="blinnphong.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="main_shader.pixel">
+    <None Include="cook_torrance.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="main_shader.vertex">
+    <None Include="depth.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="depth.pixel">
+    <None Include="main_shader.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="depth.vertex">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="depth_render.pixel">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="depth_render.vertex">
+    <None Include="shadow_mapping.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

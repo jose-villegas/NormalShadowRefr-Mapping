@@ -12,8 +12,6 @@
 #include <tchar.h>
 #include <assert.h>
 
-
-
 // Additional Headers
 #include <GL/glew.h>
 #include <SFML/OpenGL.hpp>

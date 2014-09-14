@@ -8,6 +8,16 @@ class Game
         ~Game(void);
         void Start();
 
+        void LoadModels();
+
+        void InitMainWindow(sf::VideoMode &desktop);
+
+        void InitGlew();
+
+        void MainEngineInit();
+
+        void InitOpenGL(sf::VideoMode &desktop);
+
     private:
 
         sf::Texture background;
@@ -24,9 +34,9 @@ class Game
         bool IsExiting();
         void GameLoop();
 
-		void UpdateCamera( sf::Event &currentEvent );
+        void UpdateCamera(sf::Event &currentEvent);
 
-		void ShowSplashScreen();
+        void ShowSplashScreen();
         void ShowMenu();
         void DrawLightSpheres();
         void DrawSelectionMode();
@@ -34,5 +44,10 @@ class Game
 
         static void TW_CALL GetRotationCB(void * value, void * clientData);
         static void TW_CALL SetRotationCB(const void * value, void * clientData);
-};
 
+        static void TW_CALL GetCameraCB(void * value, void * clientData);
+        static void TW_CALL SetCameraCB(const void * value, void * clientData);
+
+        static void TW_CALL GetCameraDirCB(void * value, void * clientData);
+        static void TW_CALL SetCameraDirCB(const void * value, void * clientData);
+};

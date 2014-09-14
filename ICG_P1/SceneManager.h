@@ -15,7 +15,7 @@ class SceneManager
         VisibleGameObject * Get(string name) const;
         VisibleGameObject * GetAt(int index) const;
         void Draw();
-		void DrawUsingFixedPipeline();
+        void DrawUsingFixedPipeline();
         void UpdateAll(sf::Event input);
         void CleanEnemies();
         vector<pair <std::string, VisibleGameObject *>> GetGameObjects() const { return _gameObjects; }
@@ -43,4 +43,3 @@ class SceneManager
 
         void DrawScene();
 };
-

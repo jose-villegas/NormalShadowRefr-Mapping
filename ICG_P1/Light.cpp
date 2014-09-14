@@ -2,7 +2,6 @@
 #include "Light.h"
 #include "DefaultCamera.h"
 
-
 Light::Light(void)
 {
 	active = true;
@@ -19,7 +18,6 @@ Light::Light(void)
 	cutoff = 180;
 	spot_exp = 0;
 }
-
 
 Light::~Light(void)
 {
@@ -117,4 +115,3 @@ void Light::SetDiffuse(float x, float y, float z, float w)
 	diffuse[2] = z;
 	diffuse[3] = w;
 }
-

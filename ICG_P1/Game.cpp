@@ -24,77 +24,21 @@ void Game::Start(void)
         return;
     }
 
-    // Initialize GLEW
-    glewExperimental = true; // Needed for core profile
-
-    if (glewInit() != GLEW_OK)
-    {
-        fprintf(stderr, "Failed to initialize GLEW\n");
-        return;
-    }
-
-    // Load Shaders
-    MainEngine::LoadShaders();
+    // Start Glew
+    InitGlew();
     // Settings
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-    sf::ContextSettings Settings;
-    Settings.depthBits = desktop.bitsPerPixel; // Request a 32 bits depth buffer
-    Settings.antialiasingLevel = 8; // Anti aliasing
-    GraphicSettings::setAnistrophy(16.0f); // Filtro anistropico
-    GraphicSettings::setSettings(Settings);
-    // Create Window
-    _mainWindow.create(sf::VideoMode(desktop.width - 200, desktop.height - 200), "Ping!", sf::Style::Default, Settings);
-    _mainWindow.setActive();
-    _mainWindow.setFramerateLimit(60);
-    GraphicSettings::setRenderHeight(desktop.height);
-    GraphicSettings::setRenderWidth(desktop.width);
-    // Configure the viewport (the same size as the window)
-    glViewport(0, 0, _mainWindow.getSize().x, _mainWindow.getSize().y);
-    // Setup a perspective projection
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(90, desktop.width / desktop.height, 1.f, 2000);
-    //Texturas
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    VisibleGameObject * bunny = new VisibleGameObject("Models/Cube/cube.obj");
-    //bunny->SetPosition(-50.0f, -50.0f, -100.0f);
-    bunny->SetPosition(50, -25, -100.0f);
-    bunny->Scale(40);
-    VisibleGameObject * suzanne = new VisibleGameObject("Models/teapot.obj");
-    suzanne->SetPosition(0.0f, -50.0f, -100.0f);
-    suzanne->Scale(40);
-    VisibleGameObject * teapot = new VisibleGameObject("Models/floor/floor.obj");
-    teapot->SetPosition(0.0f, -75.0f, -150.0f);
-    teapot->Scale(300);
-    _scene.Add(bunny->GetFilepath(), bunny);
-    _scene.Add(suzanne->GetFilepath(), suzanne);
-    _scene.Add(teapot->GetFilepath(), teapot);
-    selectedObjectName = _scene.GetAt(0)->GetManagerName();
-    selectedObject = _scene.GetAt(0);
+    // MainWindow Settings
+    InitMainWindow(desktop);
+    // OpenGL Parameters
+    InitOpenGL(desktop);
+    // Load OBJ Models
+    LoadModels();
     // Setting startup state
     _gameState = Game::Playing;
-    // Make some data avaible through MainEngine
-    MainEngine::_game = this;
-    MainEngine::_gameObjectManager = &_scene;
-    MainEngine::_mainWindow = &_mainWindow;
-    MainEngine::CreateNullTexture(2, 2);
-    MainEngine::CreateShadowFBO(_mainWindow.getSize().x, _mainWindow.getSize().y);
+    MainEngineInit();
+    // Load Shaders
+    MainEngine::LoadShaders();
     // Setup Anttweakbar
     InitUI();
 
@@ -200,11 +144,11 @@ void Game::GameLoop()
                 glMatrixMode(GL_MODELVIEW);
                 glLoadIdentity();
                 // Update Camera
-                UpdateCamera(currentEvent);
-                // Draw Lights
-                DrawLightSpheres();
+                DefaultCamera::UpdateCamera();
                 // Render Scene
                 _scene.Draw();
+                // Draw Lights
+                DrawLightSpheres();
                 // Objects Picking
                 //DrawSelectionMode();
                 // Draw Anttweakbar
@@ -235,6 +179,7 @@ void Game::DrawLightSpheres()
     {
         MainEngine::light[i]->Disable(GL_LIGHT0 + i);
         indicator[i]->EnableProgrammablePipeline(false);
+        glUseProgram(0);
         indicator[i]->SetPosition(MainEngine::light[i]->position[0], MainEngine::light[i]->position[1],
                                   MainEngine::light[i]->position[2]);
         indicator[i]->Draw();
@@ -309,11 +254,18 @@ void Game::InitUI()
 
     TwBar * bar2 = TwNewBar("Seleccion");
     // Change bar position
-    int barPos2[2] = {7, 350};
-    TwSetParam(bar2, NULL, "position", TW_PARAM_INT32, 2, &barPos2);
+    TwDefine(" Seleccion position='7 340' ");
+    TwDefine(" Seleccion size='200 200' ");
     TwAddVarRW(bar2, "Objeto Actual", TW_TYPE_STDSTRING, &selectedObjectName, "");
     TwAddVarCB(bar2, "rotation", TW_TYPE_QUAT4F, SetRotationCB, GetRotationCB, this,
                " Label='Rotation' opened=true showval=true axisx=x axisy=y axisz=-z");
+    TwBar * bar3 = TwNewBar("Opciones");
+    // Change bar position
+    TwDefine(" Opciones position='7 550' ");
+    TwDefine(" Opciones size='200 250' ");
+    TwAddVarRW(bar3, "Bump Mapping", TW_TYPE_BOOLCPP, &MainEngine::_enableBumpMapping, "");
+    TwAddVarCB(bar3, "Camera Position", pointType, SetCameraCB, GetCameraCB, NULL, "opened=true");
+    TwAddVarCB(bar3, "Camera Direction", TW_TYPE_DIR3F, SetCameraDirCB, GetCameraDirCB, NULL, "opened=true");
 }
 
 void Game::DrawSelectionMode()
@@ -371,4 +323,125 @@ void Game::UpdateCamera(sf::Event &currentEvent)
     DefaultCamera::SetPosition(sf::Vector3f(cam_pos.x, cam_pos.y, cam_pos.z));
     DefaultCamera::LookAt(sf::Vector3f(0, 0, cam_pos.z - 1));
     DefaultCamera::UpdateCamera();
+}
+
+void TW_CALL Game::GetCameraCB(void * value, void * clientData)
+{
+    float * val = (float *)value;
+    val[0] = DefaultCamera::position.x;
+    val[1] = DefaultCamera::position.y;
+    val[2] = DefaultCamera::position.z;
+}
+
+void TW_CALL Game::SetCameraCB(const void * value, void * clientData)
+{
+    float * a = (float *)value;
+    sf::Vector3f lightDir = DefaultCamera::direction;
+    sf::Vector3f lightPos = sf::Vector3f(a[0], a[1], a[2]);
+    sf::Vector3f invDir = sf::Vector3f(-lightDir.x, -lightDir.y, -lightDir.z);
+    DefaultCamera::SetPosition(lightPos);
+    DefaultCamera::LookAt(sf::Vector3f(lightPos.x - invDir.x, lightPos.y - invDir.y, lightPos.z - invDir.z));
+}
+
+void TW_CALL Game::GetCameraDirCB(void * value, void * clientData)
+{
+    float * val = (float *)value;
+    val[0] = DefaultCamera::direction.x;
+    val[1] = DefaultCamera::direction.y;
+    val[2] = DefaultCamera::direction.z;
+}
+
+void TW_CALL Game::SetCameraDirCB(const void * value, void * clientData)
+{
+    float * a = (float *)value;
+    sf::Vector3f lightPos = DefaultCamera::position;
+    sf::Vector3f invDir = sf::Vector3f(-a[0], -a[1], -a[2]);
+    DefaultCamera::direction = sf::Vector3f(a[0], a[1], a[2]);
+    DefaultCamera::SetPosition(lightPos);
+    DefaultCamera::LookAt(sf::Vector3f(lightPos.x - invDir.x, lightPos.y - invDir.y, lightPos.z - invDir.z));
+}
+
+void Game::InitOpenGL(sf::VideoMode &desktop)
+{
+    // Configure the viewport (the same size as the window)
+    glViewport(0, 0, _mainWindow.getSize().x, _mainWindow.getSize().y);
+    // Setup a perspective projection
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(90, desktop.width / desktop.height, 1.f, 2000);
+    //Texturas
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glActiveTexture(GL_TEXTURE1);
+    glEnable(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
+void Game::MainEngineInit()
+{
+    // Make some data avaible through MainEngine
+    MainEngine::_game = this;
+    MainEngine::_gameObjectManager = &_scene;
+    MainEngine::_mainWindow = &_mainWindow;
+    // Create Textures and Frame Buffers
+    MainEngine::CreateNullTexture(2, 2);
+    MainEngine::CreateShadowFBO(_mainWindow.getSize().x, _mainWindow.getSize().y);
+}
+
+void Game::InitGlew()
+{
+    // Initialize GLEW
+    glewExperimental = true; // Needed for core profile
+
+    if (glewInit() != GLEW_OK)
+    {
+        fprintf(stderr, "Failed to initialize GLEW\n");
+        return;
+    }
+}
+
+void Game::InitMainWindow(sf::VideoMode &desktop)
+{
+    sf::ContextSettings Settings;
+    Settings.depthBits = desktop.bitsPerPixel; // Request a 32 bits depth buffer
+    Settings.antialiasingLevel = 8; // Anti aliasing
+    GraphicSettings::setAnistrophy(16.0f); // Filtro anistropico
+    GraphicSettings::setSettings(Settings);
+    // Create Window
+    _mainWindow.create(sf::VideoMode(desktop.width - 200, desktop.height - 200), "Ping!", sf::Style::Close, Settings);
+    _mainWindow.setActive();
+    _mainWindow.setFramerateLimit(60);
+    GraphicSettings::setRenderHeight(desktop.height);
+    GraphicSettings::setRenderWidth(desktop.width);
+}
+
+void Game::LoadModels()
+{
+    VisibleGameObject * bunny = new VisibleGameObject("Models/Cube/cube.obj");
+    //bunny->SetPosition(-50.0f, -50.0f, -100.0f);
+    bunny->SetPosition(50, -25, -100.0f);
+    bunny->Scale(40);
+    VisibleGameObject * suzanne = new VisibleGameObject("Models/teapot.obj");
+    suzanne->SetPosition(0.0f, -50.0f, -100.0f);
+    suzanne->Scale(40);
+    VisibleGameObject * teapot = new VisibleGameObject("Models/floor/floor.obj");
+    teapot->SetPosition(0.0f, -75.0f, -150.0f);
+    teapot->Scale(300);
+    _scene.Add(bunny->GetFilepath(), bunny);
+    _scene.Add(suzanne->GetFilepath(), suzanne);
+    _scene.Add(teapot->GetFilepath(), teapot);
+    selectedObjectName = _scene.GetAt(0)->GetManagerName();
+    selectedObject = _scene.GetAt(0);
 }

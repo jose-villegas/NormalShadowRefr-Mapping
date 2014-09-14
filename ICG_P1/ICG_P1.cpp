@@ -6,7 +6,6 @@
 int _tmain(int argc, _TCHAR * argv[])
 {
     MainEngine::_game = new Game();
-	MainEngine::_game->Start();
+    MainEngine::_game->Start();
     return 0;
 }
-

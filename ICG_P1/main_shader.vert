@@ -5,10 +5,15 @@ varying vec3 normal;
 varying vec3 eyeVec;
 
 varying vec3 lightDir[MAX_LIGHTS];
+varying vec3 lightSpotDir[MAX_LIGHTS];
 varying vec3 halfVector[MAX_LIGHTS];
 varying float att[MAX_LIGHTS];
 
 uniform int bEnableBumpMapping = 0;
+uniform int bEnableShadowMapping = 0;
+
+varying vec4 ShadowCoord;
+uniform mat4 DepthBiasMVP;
 
 void main()
 {
@@ -29,14 +34,21 @@ void main()
 		vec3 t = normalize(gl_NormalMatrix * gl_MultiTexCoord1.xyz);
 		vec3 b = cross(n, t) * gl_MultiTexCoord1.w;
 		
-		tbnMatrix = mat3(t.x, b.x, n.x,
-							  t.y, b.y, n.y,
-							  t.z, b.z, n.z);
+		tbnMatrix = mat3(	t.x, b.x, n.x,
+							t.y, b.y, n.y,
+							t.z, b.z, n.z	);
+	}
+
+	if(bEnableShadowMapping == 1)
+	{
+		ShadowCoord = DepthBiasMVP * gl_Vertex;
 	}
 
 	for(i = 0; i < NUM_LIGHTS; i++)
 	{
 		lightDir[i] = gl_LightSource[i].position.xyz - vVertex;
+
+		lightSpotDir[i] = gl_LightSource[i].spotDirection;
 		
 		halfVector[i] = gl_LightSource[i].halfVector.xyz - vVertex;		
 
@@ -54,6 +66,7 @@ void main()
 		{
 			lightDir[i] = tbnMatrix * lightDir[i];
 			halfVector[i] = tbnMatrix * halfVector[i];
+			lightSpotDir[i] = tbnMatrix * lightSpotDir[i]; 
 		}
 	}
 }

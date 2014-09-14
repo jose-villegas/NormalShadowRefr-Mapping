@@ -1,11 +1,9 @@
 #include "stdafx.h"
 #include "ModelVBO.h"
 
-
 ModelVBO::ModelVBO(void)
 {
 }
-
 
 ModelVBO::~ModelVBO(void)
 {
@@ -112,8 +110,8 @@ void ModelVBO::BindBuffers(ModelOBJ obj)
 
 void ModelVBO::UnbindBuffers()
 {
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-	glDisableVertexAttribArray(3);
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(3);
 }

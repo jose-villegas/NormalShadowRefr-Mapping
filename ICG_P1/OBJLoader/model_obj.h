@@ -44,130 +44,130 @@
 
 class ModelOBJ
 {
-public:
-    struct Material
-    {
-        float ambient[4];
-        float diffuse[4];
-        float specular[4];
-        float shininess;        // [0 = min shininess, 1 = max shininess]
-        float alpha;            // [0 = fully transparent, 1 = fully opaque]
+    public:
+        struct Material
+        {
+            float ambient[4];
+            float diffuse[4];
+            float specular[4];
+            float shininess;        // [0 = min shininess, 1 = max shininess]
+            float alpha;            // [0 = fully transparent, 1 = fully opaque]
 
-        std::string name;
-        std::string colorMapFilename;
-        std::string bumpMapFilename;
-    };
+            std::string name;
+            std::string colorMapFilename;
+            std::string bumpMapFilename;
+        };
 
-    struct Vertex
-    {
-        float position[3];
-        float texCoord[2];
-        float normal[3];
-        float tangent[4];
-        float bitangent[3];
-    };
+        struct Vertex
+        {
+            float position[3];
+            float texCoord[2];
+            float normal[3];
+            float tangent[4];
+            float bitangent[3];
+        };
 
-    struct Mesh
-    {
-        int startIndex;
-        int triangleCount;
-        const Material *pMaterial;
-    };
+        struct Mesh
+        {
+            int startIndex;
+            int triangleCount;
+            const Material * pMaterial;
+        };
 
-    ModelOBJ();
-    ~ModelOBJ();
+        ModelOBJ();
+        ~ModelOBJ();
 
-    void destroy();
-    bool import(const char *pszFilename, bool rebuildNormals = false);
-    void normalize(float scaleTo = 1.0f, bool center = true);
-    void reverseWinding();
+        void destroy();
+        bool import(const char * pszFilename, bool rebuildNormals = false);
+        void normalize(float scaleTo = 1.0f, bool center = true);
+        void reverseWinding();
 
-    // Getter methods.
+        // Getter methods.
 
-    void getCenter(float &x, float &y, float &z) const;
-    float getWidth() const;
-    float getHeight() const;
-    float getLength() const;
-    float getRadius() const;
+        void getCenter(float &x, float &y, float &z) const;
+        float getWidth() const;
+        float getHeight() const;
+        float getLength() const;
+        float getRadius() const;
 
-    const int *getIndexBuffer() const;
-    int getIndexSize() const;
+        const int * getIndexBuffer() const;
+        int getIndexSize() const;
 
-    const Material &getMaterial(int i) const;
-    const Mesh &getMesh(int i) const;
+        const Material &getMaterial(int i) const;
+        const Mesh &getMesh(int i) const;
 
-    int getNumberOfIndices() const;
-    int getNumberOfMaterials() const;
-    int getNumberOfMeshes() const;
-    int getNumberOfTriangles() const;
-    int getNumberOfVertices() const;
+        int getNumberOfIndices() const;
+        int getNumberOfMaterials() const;
+        int getNumberOfMeshes() const;
+        int getNumberOfTriangles() const;
+        int getNumberOfVertices() const;
 
-    const std::string &getPath() const;
+        const std::string &getPath() const;
 
-    const Vertex &getVertex(int i) const;
-    const Vertex *getVertexBuffer() const;
-    int getVertexSize() const;
+        const Vertex &getVertex(int i) const;
+        const Vertex * getVertexBuffer() const;
+        int getVertexSize() const;
 
-    bool hasNormals() const;
-    bool hasPositions() const;
-    bool hasTangents() const;
-    bool hasTextureCoords() const;
+        bool hasNormals() const;
+        bool hasPositions() const;
+        bool hasTangents() const;
+        bool hasTextureCoords() const;
 
-private:
-    void addTrianglePos(int index, int material,
-        int v0, int v1, int v2);
-    void addTrianglePosNormal(int index, int material,
-        int v0, int v1, int v2,
-        int vn0, int vn1, int vn2);
-    void addTrianglePosTexCoord(int index, int material,
-        int v0, int v1, int v2,
-        int vt0, int vt1, int vt2);
-    void addTrianglePosTexCoordNormal(int index, int material,
-        int v0, int v1, int v2,
-        int vt0, int vt1, int vt2,
-        int vn0, int vn1, int vn2);
-    int addVertex(int hash, const Vertex *pVertex);
-    void bounds(float center[3], float &width, float &height,
-        float &length, float &radius) const;
-    void buildMeshes();
-    void generateNormals();
-    void generateTangents();
-    void importGeometryFirstPass(FILE *pFile);
-    void importGeometrySecondPass(FILE *pFile);
-    bool importMaterials(const char *pszFilename);
-    void scale(float scaleFactor, float offset[3]);
+    private:
+        void addTrianglePos(int index, int material,
+                            int v0, int v1, int v2);
+        void addTrianglePosNormal(int index, int material,
+                                  int v0, int v1, int v2,
+                                  int vn0, int vn1, int vn2);
+        void addTrianglePosTexCoord(int index, int material,
+                                    int v0, int v1, int v2,
+                                    int vt0, int vt1, int vt2);
+        void addTrianglePosTexCoordNormal(int index, int material,
+                                          int v0, int v1, int v2,
+                                          int vt0, int vt1, int vt2,
+                                          int vn0, int vn1, int vn2);
+        int addVertex(int hash, const Vertex * pVertex);
+        void bounds(float center[3], float &width, float &height,
+                    float &length, float &radius) const;
+        void buildMeshes();
+        void generateNormals();
+        void generateTangents();
+        void importGeometryFirstPass(FILE * pFile);
+        void importGeometrySecondPass(FILE * pFile);
+        bool importMaterials(const char * pszFilename);
+        void scale(float scaleFactor, float offset[3]);
 
-    bool m_hasPositions;
-    bool m_hasTextureCoords;
-    bool m_hasNormals;
-    bool m_hasTangents;
+        bool m_hasPositions;
+        bool m_hasTextureCoords;
+        bool m_hasNormals;
+        bool m_hasTangents;
 
-    int m_numberOfVertexCoords;
-    int m_numberOfTextureCoords;
-    int m_numberOfNormals;
-    int m_numberOfTriangles;
-    int m_numberOfMaterials;
-    int m_numberOfMeshes;
+        int m_numberOfVertexCoords;
+        int m_numberOfTextureCoords;
+        int m_numberOfNormals;
+        int m_numberOfTriangles;
+        int m_numberOfMaterials;
+        int m_numberOfMeshes;
 
-    float m_center[3];
-    float m_width;
-    float m_height;
-    float m_length;
-    float m_radius;
+        float m_center[3];
+        float m_width;
+        float m_height;
+        float m_length;
+        float m_radius;
 
-    std::string m_directoryPath;
+        std::string m_directoryPath;
 
-    std::vector<Mesh> m_meshes;
-    std::vector<Material> m_materials;
-    std::vector<Vertex> m_vertexBuffer;
-    std::vector<int> m_indexBuffer;
-    std::vector<int> m_attributeBuffer;
-    std::vector<float> m_vertexCoords;
-    std::vector<float> m_textureCoords;
-    std::vector<float> m_normals;
+        std::vector<Mesh> m_meshes;
+        std::vector<Material> m_materials;
+        std::vector<Vertex> m_vertexBuffer;
+        std::vector<int> m_indexBuffer;
+        std::vector<int> m_attributeBuffer;
+        std::vector<float> m_vertexCoords;
+        std::vector<float> m_textureCoords;
+        std::vector<float> m_normals;
 
-    std::map<std::string, int> m_materialCache;
-    std::map<int, std::vector<int> > m_vertexCache;
+        std::map<std::string, int> m_materialCache;
+        std::map<int, std::vector<int> > m_vertexCache;
 };
 
 //-----------------------------------------------------------------------------
@@ -187,7 +187,7 @@ inline float ModelOBJ::getLength() const
 inline float ModelOBJ::getRadius() const
 { return m_radius; }
 
-inline const int *ModelOBJ::getIndexBuffer() const
+inline const int * ModelOBJ::getIndexBuffer() const
 { return &m_indexBuffer[0]; }
 
 inline int ModelOBJ::getIndexSize() const
@@ -220,7 +220,7 @@ inline const std::string &ModelOBJ::getPath() const
 inline const ModelOBJ::Vertex &ModelOBJ::getVertex(int i) const
 { return m_vertexBuffer[i]; }
 
-inline const ModelOBJ::Vertex *ModelOBJ::getVertexBuffer() const
+inline const ModelOBJ::Vertex * ModelOBJ::getVertexBuffer() const
 { return &m_vertexBuffer[0]; }
 
 inline int ModelOBJ::getVertexSize() const

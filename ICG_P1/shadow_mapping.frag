@@ -16,7 +16,7 @@ void main()
 	
 	float visibility = 1.0;
 		
-	if ( texture2D( shadowMap, ShadowCoord.st ).z  <  ShadowCoord.z - bias)
+	if ( texture( shadowMap, ShadowCoord.st ).z  <  ShadowCoord.z - bias)
 	{
 		visibility = 0.5;
 	}

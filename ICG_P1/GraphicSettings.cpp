@@ -1,17 +1,15 @@
 #include "stdafx.h"
 #include "GraphicSettings.h"
 
-
 GraphicSettings::GraphicSettings(void)
 {
 }
-
 
 GraphicSettings::~GraphicSettings(void)
 {
 }
 
-void GraphicSettings::setAnistrophy( float value )
+void GraphicSettings::setAnistrophy(float value)
 {
     float g_maxAnisotrophy;
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &g_maxAnisotrophy);
@@ -20,7 +18,6 @@ void GraphicSettings::setAnistrophy( float value )
     {
         anisotrophyValue = g_maxAnisotrophy;
     }
-
     else
     {
         anisotrophyValue = value;

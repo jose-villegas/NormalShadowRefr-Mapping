@@ -238,7 +238,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="normal_mapping.vertex" />
+    <Text Include="normal_mapping.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DefaultCamera.h" />
@@ -276,19 +276,17 @@
     <ClCompile Include="VisibleGameObject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="blinnphong.pixel" />
-    <None Include="blinnphong.vertex" />
-    <None Include="cook_torrance.pixel" />
-    <None Include="cook_torrance.vertex" />
-    <None Include="depth.pixel" />
-    <None Include="depth.vertex" />
-    <None Include="main_shader.pixel" />
-    <None Include="main_shader.vertex" />
-    <None Include="normal_mapping.pixel" />
-    <None Include="depth_render.pixel" />
-    <None Include="depth_render.vertex" />
-    <None Include="shadow_mapping.pixel" />
-    <None Include="shadow_mapping.vertex" />
+    <None Include="blinnphong.frag" />
+    <None Include="blinnphong.vert" />
+    <None Include="cook_torrance.frag" />
+    <None Include="cook_torrance.vert" />
+    <None Include="depth.frag" />
+    <None Include="depth.vert" />
+    <None Include="main_shader.frag" />
+    <None Include="main_shader.vert" />
+    <None Include="normal_mapping.frag" />
+    <None Include="shadow_mapping.frag" />
+    <None Include="shadow_mapping.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
