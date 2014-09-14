@@ -124,7 +124,7 @@ bool ShadowMapFBO::Load(unsigned int WindowWidth, unsigned int WindowHeight)
     glGenTextures(1, &m_shadowMap);
     glBindTexture(GL_TEXTURE_2D, m_shadowMap);
     // No need to force GL_DEPTH_COMPONENT24, drivers usually give you the max precision if available
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WindowWidth, WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, WindowWidth, WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
     // GL_LINEAR does not make sense for depth texture. However, next tutorial shows usage of GL_LINEAR and PCF
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

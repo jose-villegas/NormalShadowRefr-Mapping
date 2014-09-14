@@ -54,8 +54,12 @@ int SceneManager::GetObjectCount() const
 // This matrix stays the same between models
 glm::mat4 depthVP;
 bool depthTesting = false;
+bool mapping = false;
 // This matrix changes between models
 glm::mat4 depthMVP;
+glm::mat4 depthBiasMVP;
+// Bias Matrix
+glm::mat4 biasMatrix(0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 1.0);
 
 glm::mat4 CalculateDepthVP(Light * light)
 {
@@ -64,8 +68,10 @@ glm::mat4 CalculateDepthVP(Light * light)
     glm::vec3 lightInvDir = glm::vec3(-light->direction[0], -light->direction[1], -light->direction[2]);
     glm::vec3 lightPos = glm::vec3(light->position[0], light->position[1], light->position[2]);
     // Matrices
-    glm::mat4 depthViewMatrix = glm::lookAt(lightPos, lightPos - lightInvDir, glm::vec3(0, 1, 0));
-    glm::mat4 depthProjectionMatrix = glm::perspective<float>(90.0f, aspectRatio, 1.0f, 2000.0f);
+    //glm::mat4 depthViewMatrix = glm::lookAt(lightPos, lightPos - lightInvDir, glm::vec3(0, 1, 0));
+    //glm::mat4 depthProjectionMatrix = glm::perspective<float>(90.0f, aspectRatio, 1.0f, 2000.0f);
+    glm::mat4 depthProjectionMatrix = glm::ortho<float>(-300, 300, -300, 300, 1, 2000);
+    glm::mat4 depthViewMatrix = glm::lookAt(lightPos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     glm::mat4 depthModelMatrix = glm::mat4(1.0);
     // MVP
     return depthProjectionMatrix * depthViewMatrix;
@@ -73,23 +79,28 @@ glm::mat4 CalculateDepthVP(Light * light)
 
 void SceneManager::Draw()
 {
+    // Render from Light's POV
     depthTesting = true;
     MainEngine::_enableShader = false;
     glBindFramebuffer(GL_FRAMEBUFFER, MainEngine::m_shadowMapFBO.GetFbo());
     glClear(GL_DEPTH_BUFFER_BIT);
+	glCullFace(GL_FRONT);
     glUseProgram(MainEngine::shaders["Depth"]);
     depthVP = CalculateDepthVP(MainEngine::light[0]);
     DrawUsingFixedPipeline();
-    // -
+    // Render from Camera's POV
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glUseProgram(MainEngine::shaders["Shadow-Mapping"]);
-    //glUniform1i(glGetUniformLocation(MainEngine::shaders["Shadow-Mapping"], "ShadowMap"), 7);
-    //glActiveTexture(GL_TEXTURE7);
-    //glBindTexture(GL_TEXTURE_2D, MainEngine::m_shadowMapFBO.GetShadowMap());
-    //RestoreCameraToOriginCoords();
+	 glCullFace(GL_BACK);
     depthTesting = false;
+    mapping = true;
+    glUseProgram(MainEngine::shaders["Shadow-Mapping"]);
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, MainEngine::m_shadowMapFBO.GetShadowMap());
+    glUniform1i(glGetUniformLocation(MainEngine::shaders["Shadow-Mapping"], "shadowMap"), 5);
     DrawUsingFixedPipeline();
+    glDisable(GL_TEXTURE_2D);
+    mapping = false;
     // ---- Debug Show Depth Texture
     glPushMatrix();
     glOrtho(-int(MainEngine::_mainWindow->getSize().x) / 2, MainEngine::_mainWindow->getSize().x / 2,
@@ -189,9 +200,22 @@ void SceneManager::DrawUsingFixedPipeline()
                 glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["Depth"], "depthMVP"), 1, GL_FALSE, &depthMVP[0][0]);
             }
 
+            if (mapping)
+            {
+                glm::mat4 depthModel = glm::mat4(1);
+                depthModel = glm::translate(depthModel, _gameObjects[i].second->GetPosition());
+                depthModel *= _gameObjects[i].second->GetRotationMatrix();
+                depthMVP = depthVP * depthModel;
+                depthBiasMVP = biasMatrix * depthMVP;
+                glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["Shadow-Mapping"], "DepthBiasMVP"), 1, GL_FALSE,
+                                   &depthBiasMVP[0][0]);
+            }
+
             _gameObjects[i].second->EnableProgrammablePipeline(false);
+            _gameObjects[i].second->EnableTextures(false);
             _gameObjects[i].second->Draw();
             _gameObjects[i].second->EnableProgrammablePipeline(true);
+            _gameObjects[i].second->EnableTextures(true);
         }
     }
 
