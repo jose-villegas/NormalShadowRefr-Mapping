@@ -51,9 +51,16 @@ int SceneManager::GetObjectCount() const
     return _gameObjects.size();
 }
 
-glm::mat4 CalculateDepthMVP(Light * light)
+// This matrix stays the same between models
+glm::mat4 depthVP;
+bool depthTesting = false;
+// This matrix changes between models
+glm::mat4 depthMVP;
+
+glm::mat4 CalculateDepthVP(Light * light)
 {
     float aspectRatio = MainEngine::_mainWindow->getSize().x / MainEngine::_mainWindow->getSize().y;
+    // Light Params
     glm::vec3 lightInvDir = glm::vec3(-light->direction[0], -light->direction[1], -light->direction[2]);
     glm::vec3 lightPos = glm::vec3(light->position[0], light->position[1], light->position[2]);
     // Matrices
@@ -61,16 +68,17 @@ glm::mat4 CalculateDepthMVP(Light * light)
     glm::mat4 depthProjectionMatrix = glm::perspective<float>(90.0f, aspectRatio, 1.0f, 2000.0f);
     glm::mat4 depthModelMatrix = glm::mat4(1.0);
     // MVP
-    return depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+    return depthProjectionMatrix * depthViewMatrix;
 }
 
 void SceneManager::Draw()
 {
+    depthTesting = true;
     MainEngine::_enableShader = false;
     glBindFramebuffer(GL_FRAMEBUFFER, MainEngine::m_shadowMapFBO.GetFbo());
     glClear(GL_DEPTH_BUFFER_BIT);
-    glUniformMatrix4fv(MainEngine::shaders["Depth"], 1, GL_FALSE, &CalculateDepthMVP(MainEngine::light[0])[0][0]);
     glUseProgram(MainEngine::shaders["Depth"]);
+    depthVP = CalculateDepthVP(MainEngine::light[0]);
     DrawUsingFixedPipeline();
     // -
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -80,6 +88,7 @@ void SceneManager::Draw()
     //glActiveTexture(GL_TEXTURE7);
     //glBindTexture(GL_TEXTURE_2D, MainEngine::m_shadowMapFBO.GetShadowMap());
     //RestoreCameraToOriginCoords();
+    depthTesting = false;
     DrawUsingFixedPipeline();
     // ---- Debug Show Depth Texture
     glPushMatrix();
@@ -171,6 +180,15 @@ void SceneManager::DrawUsingFixedPipeline()
         }
         else
         {
+            if (depthTesting)
+            {
+                glm::mat4 depthModel = glm::mat4(1);
+                depthModel = glm::translate(depthModel, _gameObjects[i].second->GetPosition());
+                depthModel *= _gameObjects[i].second->GetRotationMatrix();
+                depthMVP = depthVP * depthModel;
+                glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["Depth"], "depthMVP"), 1, GL_FALSE, &depthMVP[0][0]);
+            }
+
             _gameObjects[i].second->EnableProgrammablePipeline(false);
             _gameObjects[i].second->Draw();
             _gameObjects[i].second->EnableProgrammablePipeline(true);

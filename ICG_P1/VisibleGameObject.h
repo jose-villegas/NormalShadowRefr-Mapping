@@ -32,7 +32,8 @@ class VisibleGameObject
         virtual bool ToBeDeleted() const { return _toBeDeleted; }
         virtual int GetTypeTag() const { return _typeTag; }
         virtual void SetTypeTag(int val) { _typeTag = val; }
-        virtual sf::Vector3f GetPosition() const;
+		virtual glm::vec3 GetPosition() const { return _position; }
+		virtual glm::mat4x4 GetRotationMatrix() const { return _rotationMatrix; }
 		virtual std::string GetFilepath() const { return _filepath; }
         virtual string GetManagerName() const { return _managerName; }
         virtual ModelOBJ * GetOBJ() { return &obj; }
@@ -43,9 +44,9 @@ class VisibleGameObject
         ModelTextures _modelTextures;
         string _filepath;
 		string _managerName;
-        sf::Vector3f _position;
-        glm::mat4x4 _rotationMatrix;
-        bool _isLoaded;
+        glm::vec3 _position;
+		glm::mat4x4 _rotationMatrix;
+		bool _isLoaded;
         bool _enableTextures;
 		bool _useProgrammablePipeline;
         bool _enableRender;

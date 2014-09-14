@@ -177,16 +177,6 @@ GLuint VisibleGameObject::LoadTexture(const char * pszFilename)
     return id;
 }
 
-sf::Vector3f VisibleGameObject::GetPosition() const
-{
-    if (_isLoaded)
-    {
-        return _position;
-    }
-
-    return sf::Vector3f();
-}
-
 bool VisibleGameObject::IsLoaded() const
 {
     return _isLoaded;
@@ -226,6 +216,7 @@ float * VisibleGameObject::GetObjectRotation()
 
 void VisibleGameObject::DrawFixedPipeline()
 {
+    int var;
     const ModelOBJ::Mesh * pMesh = 0;
     const ModelOBJ::Material * pMaterial = 0;
     const ModelOBJ::Vertex * pVertices = 0;
@@ -264,6 +255,7 @@ void VisibleGameObject::DrawFixedPipeline()
         {
             glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(3, GL_FLOAT, obj.getVertexSize(), obj.getVertexBuffer()->position);
+
         }
 
         if (obj.hasTextureCoords())
