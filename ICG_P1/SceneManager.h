@@ -1,5 +1,6 @@
 #pragma once
 #include "VisibleGameObject.h"
+#include "Light.h"
 
 class SceneManager
 {
@@ -14,12 +15,8 @@ class SceneManager
         VisibleGameObject * Get(string name) const;
         VisibleGameObject * GetAt(int index) const;
         void Draw();
-
-		void DrawScene();
-
 		void DrawUsingFixedPipeline();
-
-		void UpdateAll(sf::Event input);
+        void UpdateAll(sf::Event input);
         void CleanEnemies();
         vector<pair <std::string, VisibleGameObject *>> GetGameObjects() const { return _gameObjects; }
     private:
@@ -44,5 +41,6 @@ class SceneManager
                 string val_;
         };
 
+        void DrawScene();
 };
 

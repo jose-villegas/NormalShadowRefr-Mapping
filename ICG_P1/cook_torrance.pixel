@@ -8,14 +8,14 @@ uniform float roughness = 0.3;
 void main()
 {
 	vec3 finalValue = gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient;
-    // set important material values
-    float roughnessValue = roughness; // 0 : smooth, 1: rough
-    float F0 = 0.8; // fresnel reflectance at normal incidence
-    float k = 0.2; // fraction of diffuse reflection (specular reflection = 1 - k)
-    // interpolating normals will change the length of the normal, so renormalize the normal.
-    vec3 normal = normalize(varNormal);
+	// set important material values
+	float roughnessValue = roughness; // 0 : smooth, 1: rough
+	float F0 = 0.8; // fresnel reflectance at normal incidence
+	float k = 0.2; // fraction of diffuse reflection (specular reflection = 1 - k)
+	// interpolating normals will change the length of the normal, so renormalize the normal.
+	vec3 normal = normalize(varNormal);
 	int i;
-    for(i=0; i<NUM_LIGHTS; ++i)
+	for(i=0; i<NUM_LIGHTS; ++i)
 	{
 		vec3 D = normalize(gl_LightSource[i].spotDirection);
 		vec3 L = normalize(lightDirection[i]);
@@ -30,7 +30,7 @@ void main()
 		{	
 			// do the lighting calculation for each fragment.
 			float NdotL = max(dot(normal, L), 0.0);
-    
+	
 			float specular = 0.0;
 			if(NdotL > 0.0)
 			{
@@ -42,7 +42,7 @@ void main()
 				float NdotV = max(dot(normal, eyeDir), 0.0); // note: this could also be NdotL, which is the same value
 				float VdotH = max(dot(eyeDir, halfVector), 0.0);
 				float mSquared = roughnessValue * roughnessValue;
-        
+		
 				// geometric attenuation
 				float NH2 = 2.0 * NdotH;
 				float g1 = (NH2 * NdotV) / VdotH;
@@ -59,13 +59,13 @@ void main()
 				float r1 = 1.0 / ( 3.14 * mSquared * pow(NdotH, 4.0));
 				float r2 = (NdotH * NdotH - 1.0) / (mSquared * NdotH * NdotH);
 				float roughness = r1 * exp(r2);
-        
+		
 				// fresnel
 				// Schlick approximation
 				float fresnel = pow(1.0 - VdotH, 5.0);
 				fresnel *= (1.0 - F0);
 				fresnel += F0;
-        
+		
 				specular = (fresnel * geoAtt * roughness) / (NdotV * NdotL * 3.14);
 			}
 
@@ -74,5 +74,5 @@ void main()
 			finalValue += gl_LightSource[i].diffuse * gl_FrontMaterial.diffuse * NdotL * (k + specular * (1.0 - k)) * att[i];
 		}
 	}
-    gl_FragColor = vec4(finalValue, 1.0);
+	gl_FragColor = vec4(finalValue, 1.0);
 }

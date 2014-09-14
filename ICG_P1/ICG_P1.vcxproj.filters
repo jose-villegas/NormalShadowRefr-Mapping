@@ -115,12 +115,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="phong_sh.pixel">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="phong_sh.vertex">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="blinnphong.pixel">
       <Filter>Resource Files</Filter>
     </None>
@@ -146,6 +140,18 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="main_shader.vertex">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="depth.pixel">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="depth.vertex">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="depth_render.pixel">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="depth_render.vertex">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -53,7 +53,7 @@ void Game::Start(void)
     // Setup a perspective projection
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(90, desktop.width / desktop.height, 1.f, 40000);
+    gluPerspective(90, desktop.width / desktop.height, 1.f, 2000);
     //Texturas
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);

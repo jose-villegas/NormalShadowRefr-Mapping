@@ -9,8 +9,6 @@ varying vec3 eyeVec;
 varying vec3 lightDir[MAX_LIGHTS];
 varying float att[MAX_LIGHTS];
 
-const float cos_outer_cone_angle = 0.8;
-
 void main()
 {   
 	int i;

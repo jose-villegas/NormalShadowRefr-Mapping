@@ -280,11 +280,13 @@
     <None Include="blinnphong.vertex" />
     <None Include="cook_torrance.pixel" />
     <None Include="cook_torrance.vertex" />
+    <None Include="depth.pixel" />
+    <None Include="depth.vertex" />
     <None Include="main_shader.pixel" />
     <None Include="main_shader.vertex" />
     <None Include="normal_mapping.pixel" />
-    <None Include="phong_sh.pixel" />
-    <None Include="phong_sh.vertex" />
+    <None Include="depth_render.pixel" />
+    <None Include="depth_render.vertex" />
     <None Include="shadow_mapping.pixel" />
     <None Include="shadow_mapping.vertex" />
   </ItemGroup>

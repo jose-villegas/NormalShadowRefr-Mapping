@@ -119,14 +119,7 @@ void VisibleGameObject::Draw()
 {
     if (_isLoaded && _enableRender)
     {
-        glColor4f(0.9f, 0.9f, 0.9f, 1);
         // Rotations and Translations
-        glPushMatrix();
-        glTranslatef(_position.x, _position.y, _position.z);
-        glMultMatrixf(&_rotationMatrix[0][0]);
-        // Push Rotations and Translations to Shadow Texture
-        glMatrixMode(GL_TEXTURE);
-        glActiveTexture(GL_TEXTURE7);
         glPushMatrix();
         glTranslatef(_position.x, _position.y, _position.z);
         glMultMatrixf(&_rotationMatrix[0][0]);
@@ -140,9 +133,6 @@ void VisibleGameObject::Draw()
             DrawFixedPipeline();
         }
 
-        // Pop Matrix From ViewModel and Shadow Texture
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
     }
 }

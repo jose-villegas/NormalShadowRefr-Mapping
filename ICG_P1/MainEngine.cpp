@@ -39,12 +39,13 @@ GLuint LoadShaderFromFile(std::string vertexFile, std::string pixelFile)
 
 void MainEngine::LoadShaders()
 {
-    shaders["Phong-Shading"] = LoadShaderFromFile("phong_sh.vertex", "phong_sh.pixel");
     shaders["Blinn-Phong"] = LoadShaderFromFile("blinnphong.vertex", "blinnphong.pixel");
     shaders["Cook-Torrance"] = LoadShaderFromFile("cook_torrance.vertex", "cook_torrance.pixel");
     shaders["Normal-Mapping"] = LoadShaderFromFile("normal_mapping.vertex", "normal_mapping.pixel");
     shaders["Shadow-Mapping"] = LoadShaderFromFile("shadow_mapping.vertex", "shadow_mapping.pixel");
     shaders["MainShader"] = LoadShaderFromFile("main_shader.vertex", "main_shader.pixel");
+    shaders["Depth"] = LoadShaderFromFile("depth.vertex", "depth.pixel");
+    shaders["DepthRender"] = LoadShaderFromFile("depth_render.vertex", "depth_render.pixel");
 }
 
 void MainEngine::CreateNullTexture(int width, int height)
@@ -113,38 +114,38 @@ ShadowMapFBO::~ShadowMapFBO()
 
 bool ShadowMapFBO::Load(unsigned int WindowWidth, unsigned int WindowHeight)
 {
+    m_shadowMap = 0;
+    m_fbo = 0;
     GLenum FBOstatus;
+    // create a framebuffer object
+    glGenFramebuffers(1, &m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     // Try to use a texture depth component
     glGenTextures(1, &m_shadowMap);
     glBindTexture(GL_TEXTURE_2D, m_shadowMap);
-    // GL_LINEAR does not make sense for depth texture. However, next tutorial shows usage of GL_LINEAR and PCF
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // Remove artifact on the edges of the shadowmap
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     // No need to force GL_DEPTH_COMPONENT24, drivers usually give you the max precision if available
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WindowWidth, WindowHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE,
-                 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WindowWidth, WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    // GL_LINEAR does not make sense for depth texture. However, next tutorial shows usage of GL_LINEAR and PCF
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Remove artifact on the edges of the shadowmap
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // attach the texture to FBO depth attachment point
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_shadowMap, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-    // create a framebuffer object
-    glGenFramebuffersEXT(1, &m_fbo);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
     // Instruct openGL that we won't bind a color texture with the currently bound FBO
     glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    // attach the texture to FBO depth attachment point
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, m_shadowMap, 0);
     // check FBO status
-    FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    FBOstatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
-    if (FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
+    if (FBOstatus != GL_FRAMEBUFFER_COMPLETE)
     {
-        printf("GL_FRAMEBUFFER_COMPLETE_EXT failed, CANNOT use FBO\n");
+        printf("GL_FRAMEBUFFER_COMPLETE failed, CANNOT use FBO\n");
     }
 
     // switch back to window-system-provided framebuffer
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
 }
 
