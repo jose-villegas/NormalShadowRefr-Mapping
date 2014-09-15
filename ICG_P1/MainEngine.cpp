@@ -147,14 +147,3 @@ bool ShadowMapFBO::Load(unsigned int WindowWidth, unsigned int WindowHeight)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
 }
-
-void ShadowMapFBO::BindForWriting()
-{
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
-}
-
-void ShadowMapFBO::BindForReading(GLenum TextureUnit)
-{
-    glActiveTexture(TextureUnit);
-    glBindTexture(GL_TEXTURE_2D, m_shadowMap);
-}

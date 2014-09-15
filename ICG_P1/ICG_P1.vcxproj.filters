@@ -136,9 +136,6 @@
     <None Include="blinnphong.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="cook_torrance.vert">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="depth.vert">
       <Filter>Resource Files</Filter>
     </None>
@@ -146,6 +143,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shadow_mapping.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="cook_torrance.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

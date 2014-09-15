@@ -3,27 +3,27 @@
 
 void DefaultCamera::UpdateCamera()
 {
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt
-		(
-		position.x, position.y, position.z,
-		lookat.x, lookat.y, lookat.z,
-		upVector.x, upVector.y, upVector.z
-		);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt
+    (
+        position.x, position.y, position.z,
+        lookat.x, lookat.y, lookat.z,
+        upVector.x, upVector.y, upVector.z
+    );
 }
 
-void DefaultCamera::LookAt(sf::Vector3f model)
+void DefaultCamera::LookAt(glm::vec3 model)
 {
-	lookat = model;
+    lookat = model;
 }
 
-void DefaultCamera::SetPosition(sf::Vector3f pos)
+void DefaultCamera::SetPosition(glm::vec3 pos)
 {
-	position = pos;
+    position = pos;
 }
 
-sf::Vector3f DefaultCamera::direction = sf::Vector3f(0, 0, -1);
-sf::Vector3f DefaultCamera::position = sf::Vector3f(0, 0, 0);
-sf::Vector3f DefaultCamera::lookat = sf::Vector3f(0, 0, -1);
-sf::Vector3f DefaultCamera::upVector = sf::Vector3f(0, 1, 0);
+glm::vec3 DefaultCamera::direction = glm::vec3(0, 0, -1);
+glm::vec3 DefaultCamera::position = glm::vec3(0, 0, 0);
+glm::vec3 DefaultCamera::lookat = glm::vec3(0, 0, -1);
+glm::vec3 DefaultCamera::upVector = glm::vec3(0, 1, 0);

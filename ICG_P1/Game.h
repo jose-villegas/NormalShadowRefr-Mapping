@@ -34,8 +34,6 @@ class Game
         bool IsExiting();
         void GameLoop();
 
-        void UpdateCamera(sf::Event &currentEvent);
-
         void ShowSplashScreen();
         void ShowMenu();
         void DrawLightSpheres();

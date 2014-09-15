@@ -293,38 +293,6 @@ void TW_CALL Game::SetRotationCB(const void * value, void * clientData)
     ((Game *)clientData)->selectedObject->RotateObject(a);
 }
 
-void Game::UpdateCamera(sf::Event &currentEvent)
-{
-    //Update Camera
-    sf::Vector3f cam_pos = DefaultCamera::GetPosition();
-    sf::Vector2i position = sf::Mouse::getPosition(_mainWindow);
-
-    if (currentEvent.type == sf::Event::MouseWheelMoved)
-    {
-        cam_pos.z += currentEvent.mouseWheel.delta;
-
-        if (cam_pos.z < -100.0f)
-        {
-            cam_pos.z = -100.0f;
-        }
-        else if (cam_pos.z > 1000.0f)
-        {
-            cam_pos.z = 1000.0f;
-        }
-    }
-
-    if (currentEvent.type == sf::Event::MouseButtonPressed)
-    {
-        if (currentEvent.mouseButton.button == sf::Mouse::Middle) { cam_pos = sf::Vector3f(0, 0, 0); }
-
-        if (currentEvent.mouseButton.button == sf::Mouse::Right) { cam_pos = sf::Vector3f(MainEngine::light[0]->position[0], MainEngine::light[0]->position[1], MainEngine::light[0]->position[2]); }
-    }
-
-    DefaultCamera::SetPosition(sf::Vector3f(cam_pos.x, cam_pos.y, cam_pos.z));
-    DefaultCamera::LookAt(sf::Vector3f(0, 0, cam_pos.z - 1));
-    DefaultCamera::UpdateCamera();
-}
-
 void TW_CALL Game::GetCameraCB(void * value, void * clientData)
 {
     float * val = (float *)value;
@@ -336,11 +304,11 @@ void TW_CALL Game::GetCameraCB(void * value, void * clientData)
 void TW_CALL Game::SetCameraCB(const void * value, void * clientData)
 {
     float * a = (float *)value;
-    sf::Vector3f lightDir = DefaultCamera::direction;
-    sf::Vector3f lightPos = sf::Vector3f(a[0], a[1], a[2]);
-    sf::Vector3f invDir = sf::Vector3f(-lightDir.x, -lightDir.y, -lightDir.z);
+    glm::vec3 lightDir = DefaultCamera::direction;
+    glm::vec3 lightPos = glm::vec3(a[0], a[1], a[2]);
+    glm::vec3 invDir = glm::vec3(-lightDir.x, -lightDir.y, -lightDir.z);
     DefaultCamera::SetPosition(lightPos);
-    DefaultCamera::LookAt(sf::Vector3f(lightPos.x - invDir.x, lightPos.y - invDir.y, lightPos.z - invDir.z));
+    DefaultCamera::LookAt(glm::vec3(lightPos.x - invDir.x, lightPos.y - invDir.y, lightPos.z - invDir.z));
 }
 
 void TW_CALL Game::GetCameraDirCB(void * value, void * clientData)
@@ -354,11 +322,11 @@ void TW_CALL Game::GetCameraDirCB(void * value, void * clientData)
 void TW_CALL Game::SetCameraDirCB(const void * value, void * clientData)
 {
     float * a = (float *)value;
-    sf::Vector3f lightPos = DefaultCamera::position;
-    sf::Vector3f invDir = sf::Vector3f(-a[0], -a[1], -a[2]);
-    DefaultCamera::direction = sf::Vector3f(a[0], a[1], a[2]);
+    glm::vec3 lightPos = DefaultCamera::position;
+    glm::vec3 invDir = glm::vec3(-a[0], -a[1], -a[2]);
+    DefaultCamera::direction = glm::vec3(a[0], a[1], a[2]);
     DefaultCamera::SetPosition(lightPos);
-    DefaultCamera::LookAt(sf::Vector3f(lightPos.x - invDir.x, lightPos.y - invDir.y, lightPos.z - invDir.z));
+    DefaultCamera::LookAt(glm::vec3(lightPos.x - invDir.x, lightPos.y - invDir.y, lightPos.z - invDir.z));
 }
 
 void Game::InitOpenGL(sf::VideoMode &desktop)
@@ -437,7 +405,7 @@ void Game::LoadModels()
     suzanne->SetPosition(0.0f, -50.0f, -100.0f);
     suzanne->Scale(40);
     VisibleGameObject * teapot = new VisibleGameObject("Models/floor/floor.obj");
-    teapot->SetPosition(0.0f, -75.0f, -150.0f);
+    teapot->SetPosition(0.0f, -60.0f, -150.0f);
     teapot->Scale(300);
     _scene.Add(bunny->GetFilepath(), bunny);
     _scene.Add(suzanne->GetFilepath(), suzanne);

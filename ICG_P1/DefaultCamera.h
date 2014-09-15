@@ -2,12 +2,11 @@
 class DefaultCamera
 {
     public:
-        static sf::Vector3f position;
-        static sf::Vector3f lookat;
-        static sf::Vector3f direction;
-        static sf::Vector3f upVector;
+        static glm::vec3 position;
+        static glm::vec3 lookat;
+        static glm::vec3 direction;
+        static glm::vec3 upVector;
         static void UpdateCamera();
-        static const sf::Vector3f GetPosition() { return position; }
-        static void LookAt(sf::Vector3f model);
-        static void SetPosition(sf::Vector3f pos);
+        static void LookAt(glm::vec3 model);
+        static void SetPosition(glm::vec3 pos);
 };
