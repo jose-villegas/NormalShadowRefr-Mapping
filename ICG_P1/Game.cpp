@@ -405,7 +405,7 @@ void Game::LoadModels()
     suzanne->SetPosition(0.0f, -50.0f, -100.0f);
     suzanne->Scale(40);
     VisibleGameObject * teapot = new VisibleGameObject("Models/floor/floor.obj");
-    teapot->SetPosition(0.0f, -60.0f, -150.0f);
+    teapot->SetPosition(0.0f, -70.0f, -150.0f);
     teapot->Scale(300);
     _scene.Add(bunny->GetFilepath(), bunny);
     _scene.Add(suzanne->GetFilepath(), suzanne);
