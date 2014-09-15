@@ -25,17 +25,17 @@ class MainEngine
 {
     public:
         // Variables
+        static GLuint _nullTexture;
+        static Game * _game;
+        static SceneManager * _gameObjectManager;
+        static ShadowMapFBO m_shadowMapFBO;
         static bool _collisionsActive;
         static bool _enableBumpMapping;
         static bool _enableShadows;
-        static Game * _game;
-        static GLuint _nullTexture;
         static map <std::string, GLuint> shaders;
-        static SceneManager * _gameObjectManager;
         static sf::Clock frameClock;
         static sf::Clock gameClock;
         static sf::RenderWindow * _mainWindow;
-        static ShadowMapFBO m_shadowMapFBO;
         static vector<Light *> light;
         // Methods
         static float GetFrameTime();

@@ -24,7 +24,7 @@ void main()
 {
 	int i;
 	float visibility = 1.0;
-	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 color = vec4(vec3(0.1), 1);
 	vec3 n = normalize(texture2D(normalMap, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
 	
 	if(bEnableBumpMapping == 0)  { n = normalize(normal); }
