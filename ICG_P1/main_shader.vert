@@ -11,9 +11,14 @@ varying float att[MAX_LIGHTS];
 
 uniform int bEnableBumpMapping = 0;
 uniform int bEnableShadowMapping = 0;
+uniform int bEnableReflection = 0;
+
+varying vec3 Refl;
 
 varying vec4 ShadowCoord;
 uniform mat4 DepthBiasMVP;
+
+uniform mat4 invView;
 
 void main()
 {
@@ -27,6 +32,12 @@ void main()
 	normal = normalize(gl_NormalMatrix * gl_Normal);
 
 	mat3 tbnMatrix;
+
+	if(bEnableReflection == 1)
+	{
+		vec3 Reflection = reflect(normalize(vVertex), normal);
+		Refl = (invView * vec4(Reflection, 0.0)).xyz;
+	}
 		
 	if(bEnableBumpMapping == 1)
 	{
@@ -41,7 +52,11 @@ void main()
 
 	if(bEnableShadowMapping == 1)
 	{
-		ShadowCoord = DepthBiasMVP * gl_Vertex;
+		ShadowCoord = DepthBiasMVP * vec4(gl_Vertex.xyz, 1);
+	}
+	else
+	{
+		ShadowCoord = vec4(0);
 	}
 
 	for(i = 0; i < NUM_LIGHTS; i++)

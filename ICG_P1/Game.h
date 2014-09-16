@@ -43,6 +43,9 @@ class Game
         static void TW_CALL GetRotationCB(void * value, void * clientData);
         static void TW_CALL SetRotationCB(const void * value, void * clientData);
 
+        static void TW_CALL GetPositionCB(void * value, void * clientData);
+        static void TW_CALL SetPositionCB(const void * value, void * clientData);
+
         static void TW_CALL GetCameraCB(void * value, void * clientData);
         static void TW_CALL SetCameraCB(const void * value, void * clientData);
 

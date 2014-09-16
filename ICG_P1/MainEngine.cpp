@@ -63,14 +63,11 @@ void MainEngine::CreateNullTexture(int width, int height)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, &pixels[0]);
 }
 
-void MainEngine::CreateShadowFBO(int width, int heigh)
-{
-    m_shadowMapFBO.Load(width, heigh);
-}
+unsigned char MainEngine::MAX_LIGHTS = 8;
+
+unsigned char MainEngine::NUM_LIGHTS = 2;
 
 bool MainEngine::_enableBumpMapping = true;
-
-ShadowMapFBO MainEngine::m_shadowMapFBO;
 
 bool MainEngine::_enableShadows = true;
 
@@ -91,59 +88,3 @@ Game * MainEngine::_game;
 sf::Clock MainEngine::frameClock;
 
 bool MainEngine::_collisionsActive = true;
-
-ShadowMapFBO::ShadowMapFBO()
-{
-    m_fbo = 0;
-    m_shadowMap = 0;
-}
-
-ShadowMapFBO::~ShadowMapFBO()
-{
-    if (m_fbo != 0)
-    {
-        glDeleteFramebuffers(1, &m_fbo);
-    }
-
-    if (m_shadowMap != 0)
-    {
-        glDeleteTextures(1, &m_shadowMap);
-    }
-}
-
-bool ShadowMapFBO::Load(unsigned int WindowWidth, unsigned int WindowHeight)
-{
-    m_shadowMap = 0;
-    m_fbo = 0;
-    GLenum FBOstatus;
-    // create a framebuffer object
-    glGenFramebuffers(1, &m_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    // Try to use a texture depth component
-    glGenTextures(1, &m_shadowMap);
-    glBindTexture(GL_TEXTURE_2D, m_shadowMap);
-    // No need to force GL_DEPTH_COMPONENT24, drivers usually give you the max precision if available
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, WindowWidth, WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-    // GL_LINEAR does not make sense for depth texture. However, next tutorial shows usage of GL_LINEAR and PCF
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // Remove artifact on the edges of the shadowmap
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    // attach the texture to FBO depth attachment point
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_shadowMap, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    // Instruct openGL that we won't bind a color texture with the currently bound FBO
-    glDrawBuffer(GL_NONE);
-    // check FBO status
-    FBOstatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-    if (FBOstatus != GL_FRAMEBUFFER_COMPLETE)
-    {
-        printf("GL_FRAMEBUFFER_COMPLETE failed, CANNOT use FBO\n");
-    }
-
-    // switch back to window-system-provided framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    return true;
-}

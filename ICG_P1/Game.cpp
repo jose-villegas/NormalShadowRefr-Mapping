@@ -1,9 +1,9 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Game.h"
-#include "GraphicSettings.h"
-#include "DefaultCamera.h"
 #include "MainEngine.h"
-#include <stddef.h>
+#include "DefaultCamera.h"
+#include "ShadowMap.h"
+#include "Reflection.h"
 
 Game::Game(void)
 {
@@ -137,7 +137,6 @@ void Game::GameLoop()
     {
         case Game::Playing:
             {
-                _mainWindow.clear();
                 // Clear the depth buffer
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 // Apply some transformations
@@ -218,7 +217,7 @@ void Game::InitUI()
     // Defining new enum type
     TwType lightType = TwDefineEnumFromString("Light Type", "Directional,Point,Spot");
 
-    for (int i = 0; i < NUM_LIGHTS; i++)
+    for (int i = 0; i < MainEngine::NUM_LIGHTS; i++)
     {
         Light * b = new Light();
         MainEngine::light.push_back(b);
@@ -258,12 +257,15 @@ void Game::InitUI()
     TwDefine(" Seleccion size='200 200' ");
     TwAddVarRW(bar2, "Objeto Actual", TW_TYPE_STDSTRING, &selectedObjectName, "");
     TwAddVarCB(bar2, "rotation", TW_TYPE_QUAT4F, SetRotationCB, GetRotationCB, this,
-               " Label='Rotation' opened=true showval=true axisx=x axisy=y axisz=-z");
+               " Label='Rotation' opened=true showval=true");
+    TwAddVarCB(bar2, "position", pointType, SetPositionCB, GetPositionCB, this,
+               " Label='Position' opened=true");
     TwBar * bar3 = TwNewBar("Opciones");
     // Change bar position
     TwDefine(" Opciones position='7 550' ");
     TwDefine(" Opciones size='200 250' ");
     TwAddVarRW(bar3, "Bump Mapping", TW_TYPE_BOOLCPP, &MainEngine::_enableBumpMapping, "");
+    TwAddVarRW(bar3, "Shadow Mapping", TW_TYPE_BOOLCPP, &MainEngine::_enableShadows, "");
     TwAddVarCB(bar3, "Camera Position", pointType, SetCameraCB, GetCameraCB, NULL, "opened=true");
     TwAddVarCB(bar3, "Camera Direction", TW_TYPE_DIR3F, SetCameraDirCB, GetCameraDirCB, NULL, "opened=true");
 }
@@ -290,7 +292,7 @@ void TW_CALL Game::GetRotationCB(void * value, void * clientData)
 void TW_CALL Game::SetRotationCB(const void * value, void * clientData)
 {
     float * a = (float *)value;
-    ((Game *)clientData)->selectedObject->RotateObject(a);
+    ((Game *)clientData)->selectedObject->SetRotation(a);
 }
 
 void TW_CALL Game::GetCameraCB(void * value, void * clientData)
@@ -341,8 +343,11 @@ void Game::InitOpenGL(sf::VideoMode &desktop)
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glActiveTexture(GL_TEXTURE1);
     glEnable(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -355,9 +360,6 @@ void Game::InitOpenGL(sf::VideoMode &desktop)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glEnable(GL_LIGHT3);
-    GLfloat ambientColor[] = {0.2f, 0.2f, 0.2f, 1.0f}; //Color(0.2, 0.2, 0.2)
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 }
 
 void Game::MainEngineInit()
@@ -368,7 +370,8 @@ void Game::MainEngineInit()
     MainEngine::_mainWindow = &_mainWindow;
     // Create Textures and Frame Buffers
     MainEngine::CreateNullTexture(2, 2);
-    MainEngine::CreateShadowFBO(_mainWindow.getSize().x, _mainWindow.getSize().y);
+    ShadowMap::Create(2 * _mainWindow.getSize().x, 2 * _mainWindow.getSize().y);
+    Reflection::Create(1024, 1024);
 }
 
 void Game::InitGlew()
@@ -400,19 +403,39 @@ void Game::InitMainWindow(sf::VideoMode &desktop)
 
 void Game::LoadModels()
 {
-    VisibleGameObject * bunny = new VisibleGameObject("Models/Cube/cube.obj");
-    //bunny->SetPosition(-50.0f, -50.0f, -100.0f);
-    bunny->SetPosition(50, -25, -100.0f);
-    bunny->Scale(40);
-    VisibleGameObject * suzanne = new VisibleGameObject("Models/teapot.obj");
-    suzanne->SetPosition(0.0f, -50.0f, -100.0f);
+    VisibleGameObject * cube = new VisibleGameObject("Models/Cube/cube.obj");
+    cube->SetPosition(50, 40, -100.0f);
+    cube->Scale(40);
+    VisibleGameObject * suzanne = new VisibleGameObject("Models/suzanne.obj");
+    suzanne->SetPosition(-50, 40 * suzanne->GetOBJ()->getHeight() / 2, -100);
     suzanne->Scale(40);
-    VisibleGameObject * teapot = new VisibleGameObject("Models/floor/floor.obj");
-    teapot->SetPosition(0.0f, -70.0f, -150.0f);
-    teapot->Scale(300);
-    _scene.Add(bunny->GetFilepath(), bunny);
-    _scene.Add(suzanne->GetFilepath(), suzanne);
+    suzanne->SetIsReflective(true);
+    VisibleGameObject * teapot = new VisibleGameObject("Models/teapot.obj");
+    teapot->SetPosition(0.0f, 20.0f, -100.0f);
+    teapot->Scale(40);
+    teapot->SetIsReflective(true);
+    VisibleGameObject * floor = new VisibleGameObject("Models/floor/floor.obj");
+    floor->SetPosition(0.0f, 0.0f, -150.0f);
+    floor->Scale(300);
+    _scene.Add(cube->GetFilepath(), cube);
+    _scene.Add(floor->GetFilepath(), floor);
     _scene.Add(teapot->GetFilepath(), teapot);
+    _scene.Add(suzanne->GetFilepath(), suzanne);
     selectedObjectName = _scene.GetAt(0)->GetManagerName();
     selectedObject = _scene.GetAt(0);
+}
+
+void TW_CALL Game::GetPositionCB(void * value, void * clientData)
+{
+    float * a = &(static_cast<const Game *>(clientData)->selectedObject->GetPosition()[0]);
+    float * val = (float *)value;
+    val[0] = a[0];
+    val[1] = a[1];
+    val[2] = a[2];
+}
+
+void TW_CALL Game::SetPositionCB(const void * value, void * clientData)
+{
+    float * a = (float *)value;
+    ((Game *)clientData)->selectedObject->SetPosition(a[0], a[1], a[2]);
 }

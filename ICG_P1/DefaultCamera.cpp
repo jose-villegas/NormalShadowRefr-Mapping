@@ -24,6 +24,6 @@ void DefaultCamera::SetPosition(glm::vec3 pos)
 }
 
 glm::vec3 DefaultCamera::direction = glm::vec3(0, 0, -1);
-glm::vec3 DefaultCamera::position = glm::vec3(0, 0, 0);
-glm::vec3 DefaultCamera::lookat = glm::vec3(0, 0, -1);
+glm::vec3 DefaultCamera::position = glm::vec3(0, 50, 0);
+glm::vec3 DefaultCamera::lookat = glm::vec3(0, 50, -1);
 glm::vec3 DefaultCamera::upVector = glm::vec3(0, 1, 0);

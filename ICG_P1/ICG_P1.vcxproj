@@ -244,12 +244,14 @@
     <ClInclude Include="DefaultCamera.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="ModelVBO.h" />
+    <ClInclude Include="Reflection.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="MainEngine.h" />
     <ClInclude Include="OBJLoader\bitmap.h" />
     <ClInclude Include="OBJLoader\model_obj.h" />
     <ClInclude Include="GraphicSettings.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="VisibleGameObject.h" />
@@ -258,6 +260,7 @@
     <ClCompile Include="DefaultCamera.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="ModelVBO.cpp" />
+    <ClCompile Include="Reflection.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="ICG_P1.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -265,6 +268,7 @@
     <ClCompile Include="OBJLoader\bitmap.cpp" />
     <ClCompile Include="OBJLoader\model_obj.cpp" />
     <ClCompile Include="GraphicSettings.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

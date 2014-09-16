@@ -41,5 +41,9 @@ class SceneManager
                 string val_;
         };
 
+        void DrawShadowMapping();
+        void DrawCubeMap(VisibleGameObject * model);
         void DrawScene();
+        void ComputeModelMatrix_ShadowMapping(int i);
+
 };
