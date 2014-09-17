@@ -82,20 +82,24 @@ void main()
 		// Spot Light
 		if(gl_LightSource[i].spotCutoff <= 90.0)
 		{
+			
+
 			vec3 spotDir = vec3(gl_LightSource[i].spotDirection);
 
 			if(bEnableBumpMapping == 1) { spotDir = lightSpotDir[i]; }
 
 			vec3 D = normalize(spotDir);
 			float cosAngle = dot(-l, D);
+			float spotExponentScaled = gl_LightSource[i].spotExponent * gl_LightSource[i].spotCutoff / 128;
+			float outerConeAngle = gl_LightSource[0].spotCosCutoff;
+			float innerConeAngle = cos(spotExponentScaled * 3.14 / 180);
+			float cosInnerMinusOuter = outerConeAngle - innerConeAngle;
+
+			spot -= clamp((cosAngle - innerConeAngle) / cosInnerMinusOuter, 0.0, 1.0);
 			
-			if(cosAngle > gl_LightSource[i].spotCosCutoff)
+			if(gl_LightSource[i].spotCutoff == 0)
 			{
-				spot = pow(gl_LightSource[i].spotCosCutoff, gl_LightSource[i].spotExponent);
-			}
-			else
-			{
-				spot = 0.0;
+				spot = 0;
 			}
 		}
 		vec3 R = reflect(-l,n);
@@ -103,8 +107,8 @@ void main()
 		float nDotL = max(0.0, dot(n, l));
 		float nDotH;
 
-		cosAlpha = clamp( dot( E,R ), 0,1 );
-		cosTheta = clamp( dot( n,l ), 0,1 );
+		cosAlpha = clamp( dot( E,R ), 0, 1 );
+		cosTheta = clamp( dot( n,l ), 0, 1 );
 
 		if(bEnableBumpMapping == 0)
 		{
@@ -114,10 +118,11 @@ void main()
 		else { nDotH = max(0.0, dot(n, h)); }
 
 		float power = (nDotL == 0.0) ? 0.0 : pow(nDotH, gl_FrontMaterial.shininess);
+
 		vec4 ambient = gl_FrontLightProduct[i].ambient;
-		vec4 diffuse = gl_FrontLightProduct[i].diffuse * nDotL * visibility * cosTheta;
-		vec4 specular = gl_FrontLightProduct[i].specular * power * visibility * pow(cosAlpha,5);
-		color += ( ambient + diffuse + specular ) * att[i] * spot;
+		vec4 diffuse = gl_FrontLightProduct[i].diffuse * nDotL * cosTheta;
+		vec4 specular = gl_FrontLightProduct[i].specular * power * pow(cosAlpha,5);
+		color += ( ambient + diffuse + specular ) * att[i] * spot * visibility;
 	}
 
 	gl_FragColor = color * texture(colorMap, gl_TexCoord[0].st);

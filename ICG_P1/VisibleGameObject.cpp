@@ -2,6 +2,7 @@
 #include "VisibleGameObject.h"
 #include "GraphicSettings.h"
 #include "MainEngine.h"
+#include <atlstr.h>
 
 VisibleGameObject::VisibleGameObject() : _isLoaded(false), _useProgrammablePipeline(true), _isReflective(false),
     _isRefractive(false), scaleFactor(1.0)
@@ -152,10 +153,9 @@ GLuint VisibleGameObject::LoadTexture(const char * pszFilename)
 {
     GLuint id = 0;
     Bitmap bitmap;
-    WCHAR stra[256];
-    MultiByteToWideChar(0, 0, pszFilename, 256, stra, 256);
+    CStringW filenamew(pszFilename);
 
-    if (bitmap.loadPicture(stra))
+    if (bitmap.loadPicture(filenamew))
     {
         // The Bitmap class loads images and orients them top-down.
         // OpenGL expects bitmap images to be oriented bottom-up.
