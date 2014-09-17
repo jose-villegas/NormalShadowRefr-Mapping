@@ -2,11 +2,12 @@
 ## Alias OBJ Material File
 # Exported from SketchUp, (c) 2000-2012 Trimble Navigation Limited
 
-newmtl Tile_Checker_BW
+newmtl _1
 Ka 0.000000 0.000000 0.000000
-Kd 0.490196 0.439216 0.419608
+Kd 0.615686 0.619608 0.615686
 Ks 0.330000 0.330000 0.330000
-map_Kd floor/Tile_Checker_BW.jpg
+map_Kd floor/_1.jpg
+map_bump floor/normal_map.jpg
 
 newmtl ForegroundColor
 Ka 0.000000 0.000000 0.000000

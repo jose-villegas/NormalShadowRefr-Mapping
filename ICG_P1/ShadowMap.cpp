@@ -67,7 +67,7 @@ glm::mat4 ShadowMap::CalculateDepthVP(Light * light)
     //glm::mat4 depthViewMatrix = glm::lookAt(lightPos, lightPos - lightInvDir, glm::vec3(0, 1, 0));
     //glm::mat4 depthProjectionMatrix = glm::perspective<float>(90.0f, aspectRatio, 1.0f, 2000.0f);
     glm::mat4 depthProjectionMatrix = glm::ortho<float>(-1000, 1000, -1000, 1000, 1, 2000);
-    glm::mat4 depthViewMatrix = glm::lookAt(lightPos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    glm::mat4 depthViewMatrix = glm::lookAt(lightPos, glm::vec3(0, 0, -100), glm::vec3(0, 1, 0));
     // VP
     depthVP = depthProjectionMatrix * depthViewMatrix;
     return depthVP;
@@ -78,6 +78,7 @@ glm::mat4 ShadowMap::CalculateMVPMatrix(VisibleGameObject * model)
     glm::mat4 depthModel = glm::mat4(1);
     depthModel = glm::translate(depthModel, model->GetPosition());
     depthModel *= model->GetRotationMatrix();
+    depthModel *= glm::scale(glm::mat4(1), glm::vec3(model->GetScaleFactor()));
     depthMVP = depthVP * depthModel;
     return depthMVP;
 }
@@ -87,6 +88,7 @@ glm::mat4 ShadowMap::CalculateBiasMVPMatrix(VisibleGameObject * model)
     glm::mat4 depthModel = glm::mat4(1);
     depthModel = glm::translate(depthModel, model->GetPosition());
     depthModel *= model->GetRotationMatrix();
+    depthModel *= glm::scale(glm::mat4(1), glm::vec3(model->GetScaleFactor()));
     depthMVP = depthVP * depthModel;
     depthBiasMVP = biasMatrix * depthMVP;
     return depthBiasMVP;

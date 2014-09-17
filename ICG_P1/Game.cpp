@@ -203,8 +203,9 @@ void Game::InitUI()
     TwBar * bar = TwNewBar("Luces");
     TwDefine(" GLOBAL help='mensaje de ayuda #todo' "); // Message added to the help bar.
     // Change bar position
-    int barPos[2] = {7, 7};
+    int barPos[2] = {5, 5};
     TwSetParam(bar, NULL, "position", TW_PARAM_INT32, 2, &barPos);
+    TwDefine(" Luces size='200 540' ");
     // Add 'speedDir' to 'bar': this is a modifiable variable of type TW_TYPE_DIR3F. Just displaying the arrow widget
     struct Point { float X, Y, Z; };
     TwStructMember pointMembers[] =
@@ -249,21 +250,25 @@ void Game::InitUI()
                    (" Group='Luz " + std::to_string(i) + "' Label='   Cutoff' min=0 max=90 ").c_str());
         TwAddVarRW(bar, ("Exponent" + std::to_string(i)).c_str(), TW_TYPE_FLOAT, &MainEngine::light.back()->spot_exp,
                    (" Group='Luz " + std::to_string(i) + "' Label='   Exponent' min=0 max=128").c_str());
+        MainEngine::light[i]->position[0] = (5 * ceil((i + 2) / 2)) * cos(i * 3.14);
     }
 
     TwBar * bar2 = TwNewBar("Seleccion");
     // Change bar position
-    TwDefine(" Seleccion position='7 340' ");
-    TwDefine(" Seleccion size='200 200' ");
+    int barPos2[2] = {_mainWindow.getSize().x - 205, 5};
+    TwSetParam(bar2, NULL, "position", TW_PARAM_INT32, 2, &barPos2);
+    TwDefine(" Seleccion size='200 320' ");
     TwAddVarRW(bar2, "Objeto Actual", TW_TYPE_STDSTRING, &selectedObjectName, "");
     TwAddVarCB(bar2, "rotation", TW_TYPE_QUAT4F, SetRotationCB, GetRotationCB, this,
                " Label='Rotation' opened=true showval=true");
     TwAddVarCB(bar2, "position", pointType, SetPositionCB, GetPositionCB, this,
                " Label='Position' opened=true");
+    TwAddVarCB(bar2, "Is Reflective", TW_TYPE_BOOLCPP, SetReflective, GetReflective, this, "");
+    TwAddVarCB(bar2, "Is Refractive", TW_TYPE_BOOLCPP, SetRefractive, GetRefractive, this, "");
     TwBar * bar3 = TwNewBar("Opciones");
     // Change bar position
-    TwDefine(" Opciones position='7 550' ");
-    TwDefine(" Opciones size='200 250' ");
+    TwDefine(" Opciones position='5 550' ");
+    TwDefine(" Opciones size='200 300' ");
     TwAddVarRW(bar3, "Bump Mapping", TW_TYPE_BOOLCPP, &MainEngine::_enableBumpMapping, "");
     TwAddVarRW(bar3, "Shadow Mapping", TW_TYPE_BOOLCPP, &MainEngine::_enableShadows, "");
     TwAddVarCB(bar3, "Camera Position", pointType, SetCameraCB, GetCameraCB, NULL, "opened=true");
@@ -340,6 +345,7 @@ void Game::InitOpenGL(sf::VideoMode &desktop)
     glLoadIdentity();
     gluPerspective(90, desktop.width / desktop.height, 1.f, 2000);
     //Texturas
+    glEnable(GL_NORMALIZE);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -409,14 +415,14 @@ void Game::LoadModels()
     VisibleGameObject * suzanne = new VisibleGameObject("Models/suzanne.obj");
     suzanne->SetPosition(-50, 40 * suzanne->GetOBJ()->getHeight() / 2, -100);
     suzanne->Scale(40);
-    suzanne->SetIsReflective(true);
+    suzanne->SetIsRefractive(true);
     VisibleGameObject * teapot = new VisibleGameObject("Models/teapot.obj");
     teapot->SetPosition(0.0f, 20.0f, -100.0f);
     teapot->Scale(40);
     teapot->SetIsReflective(true);
     VisibleGameObject * floor = new VisibleGameObject("Models/floor/floor.obj");
     floor->SetPosition(0.0f, 0.0f, -150.0f);
-    floor->Scale(300);
+    floor->Scale(500);
     _scene.Add(cube->GetFilepath(), cube);
     _scene.Add(floor->GetFilepath(), floor);
     _scene.Add(teapot->GetFilepath(), teapot);
@@ -438,4 +444,48 @@ void TW_CALL Game::SetPositionCB(const void * value, void * clientData)
 {
     float * a = (float *)value;
     ((Game *)clientData)->selectedObject->SetPosition(a[0], a[1], a[2]);
+}
+
+void TW_CALL Game::GetReflective(void * value, void * clientData)
+{
+    bool a = static_cast<const Game *>(clientData)->selectedObject->GetIsReflective();
+    bool * val = (bool *)value;
+    *val = a;
+}
+
+void TW_CALL Game::SetReflective(const void * value, void * clientData)
+{
+    bool * a = (bool *)value;
+
+    if (!((Game *)clientData)->selectedObject->GetIsRefractive())
+    {
+        ((Game *)clientData)->selectedObject->SetIsReflective(*a);
+    }
+    else
+    {
+        ((Game *)clientData)->selectedObject->SetIsRefractive(!*a);
+        ((Game *)clientData)->selectedObject->SetIsReflective(*a);
+    }
+}
+
+void TW_CALL Game::GetRefractive(void * value, void * clientData)
+{
+    bool a = static_cast<const Game *>(clientData)->selectedObject->GetIsRefractive();
+    bool * val = (bool *)value;
+    *val = a;
+}
+
+void TW_CALL Game::SetRefractive(const void * value, void * clientData)
+{
+    bool * a = (bool *)value;
+
+    if (!((Game *)clientData)->selectedObject->GetIsReflective())
+    {
+        ((Game *)clientData)->selectedObject->SetIsRefractive(*a);
+    }
+    else
+    {
+        ((Game *)clientData)->selectedObject->SetIsRefractive(*a);
+        ((Game *)clientData)->selectedObject->SetIsReflective(!*a);
+    }
 }

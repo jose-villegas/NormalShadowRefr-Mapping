@@ -4,12 +4,12 @@
 #include "MainEngine.h"
 
 VisibleGameObject::VisibleGameObject() : _isLoaded(false), _useProgrammablePipeline(true), _isReflective(false),
-    _isRefractive(false)
+    _isRefractive(false), scaleFactor(1.0)
 {
 }
 
 VisibleGameObject::VisibleGameObject(string filename) : _isLoaded(false), _useProgrammablePipeline(true),
-    _isReflective(false), _isRefractive(false)
+    _isReflective(false), _isRefractive(false), scaleFactor(1.0)
 {
     Load(filename);
     assert(_isLoaded);
@@ -123,6 +123,7 @@ void VisibleGameObject::Draw()
         glPushMatrix();
         glTranslatef(_position.x, _position.y, _position.z);
         glMultMatrixf(&_rotationMatrix[0][0]);
+        glScalef(scaleFactor, scaleFactor, scaleFactor);
 
         if (_useProgrammablePipeline)
         {
@@ -171,7 +172,8 @@ GLuint VisibleGameObject::LoadTexture(const char * pszFilename)
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, GraphicSettings::getAnisotrophyValue());
         }
 
-        gluBuild2DMipmaps(GL_TEXTURE_2D, 4, bitmap.width, bitmap.height, GL_BGRA_EXT, GL_UNSIGNED_BYTE, bitmap.getPixels());
+        gluBuild2DMipmaps(GL_TEXTURE_2D, 4, bitmap.width, bitmap.height, GL_BGRA_EXT, GL_UNSIGNED_BYTE,
+                          bitmap.getPixels());
     }
 
     return id;
@@ -199,7 +201,7 @@ void VisibleGameObject::SetRotation(float quat[4])
 
 void VisibleGameObject::Scale(float scale)
 {
-    obj.normalize(scale, true);
+    scaleFactor = scale;
 }
 
 float * VisibleGameObject::GetObjectRotation()

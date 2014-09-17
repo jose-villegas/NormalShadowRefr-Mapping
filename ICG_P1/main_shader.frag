@@ -16,6 +16,7 @@ varying float att[MAX_LIGHTS];
 uniform int bEnableBumpMapping = 0;
 uniform int bEnableShadowMapping = 0;
 uniform int bEnableReflection = 0;
+uniform int bEnableRefraction = 0;
 
 // Shadow Mapping
 uniform sampler2D shadowMap;
@@ -111,7 +112,7 @@ void main()
 	gl_FragColor = color * texture(colorMap, gl_TexCoord[0].st);
 	gl_FragColor.a = materialAlpha;
 
-	if(bEnableReflection == 1) 
+	if(bEnableReflection == 1 || bEnableRefraction == 1) 
 	{ 
 		gl_FragColor += texture(CubeMap, Refl.xyz);
 	}

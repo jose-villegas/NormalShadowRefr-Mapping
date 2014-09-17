@@ -116,8 +116,16 @@ void SceneManager::DrawScene()
         {
             if (MainEngine::_enableShadows) { ComputeModelMatrix_ShadowMapping(i); }
 
-            if (_gameObjects[i].second->GetIsReflective()) { DrawCubeMap(_gameObjects[i].second); }
-            else { glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"), 0); }
+            if (_gameObjects[i].second->GetIsReflective() || _gameObjects[i].second->GetIsRefractive())
+            {
+                DrawCubeMap(_gameObjects[i].second);
+            }
+            else
+            {
+                if (!_gameObjects[i].second->GetIsReflective()) { glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"), 0); }
+
+                if (!_gameObjects[i].second->GetIsRefractive()) { glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableRefraction"), 0); }
+            }
 
             _gameObjects[i].second->Draw();
         }
@@ -186,6 +194,7 @@ void SceneManager::ComputeModelMatrix_ShadowMapping(int i)
 void SceneManager::DrawCubeMap(VisibleGameObject * model)
 {
     glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"), 0);
+    glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableRefraction"), 0);
     glBindFramebuffer(GL_FRAMEBUFFER, Reflection::GetFrameBuffer());
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, Reflection::GetRenderBuffer());
@@ -261,7 +270,10 @@ void SceneManager::DrawCubeMap(VisibleGameObject * model)
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, MainEngine::_mainWindow->getSize().x, MainEngine::_mainWindow->getSize().y);
-    glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"), 1);
+
+    if (model->GetIsReflective()) { glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"), 1); }
+    else if (model->GetIsRefractive()) { glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableRefraction"), 1); }
+
     glm::mat4 invViewMatrix = glm::inverse(glm::lookAt(DefaultCamera::position, DefaultCamera::lookat, glm::vec3(0, 1, 0)));
     glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["MainShader"], "invView"), 1, GL_FALSE,
                        &invViewMatrix[0][0]);

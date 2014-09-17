@@ -12,6 +12,9 @@ varying float att[MAX_LIGHTS];
 uniform int bEnableBumpMapping = 0;
 uniform int bEnableShadowMapping = 0;
 uniform int bEnableReflection = 0;
+uniform int bEnableRefraction = 0;
+
+uniform float refractiveIndex = 1.33;
 
 varying vec3 Refl;
 
@@ -37,6 +40,11 @@ void main()
 	{
 		vec3 Reflection = reflect(normalize(vVertex), normal);
 		Refl = (invView * vec4(Reflection, 0.0)).xyz;
+	} 
+	else if(bEnableRefraction == 1)
+	{
+		vec3 Refraction = refract(normalize(vVertex), normal, refractiveIndex);
+		Refl = (invView * vec4(Refraction, 0.0)).xyz;
 	}
 		
 	if(bEnableBumpMapping == 1)

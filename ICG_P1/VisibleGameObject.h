@@ -11,6 +11,9 @@ class VisibleGameObject
         bool GetEnableRender() const { return _enableRender; }
         bool GetIsLoaded() const { return _isLoaded; }
         bool GetIsReflective() const { return _isReflective; }
+        bool GetIsRefractive() const { return _isRefractive; }
+        float GetScaleFactor() const { return scaleFactor; }
+        void SetScaleFactor(float val) { scaleFactor = val; }
         float * GetObjectRotation();
         glm::mat4x4 GetRotationMatrix() const { return _rotationMatrix; }
         glm::vec3 GetPosition() const { return _position; }
@@ -26,6 +29,7 @@ class VisibleGameObject
         void Scale(float scale);
         void SetIsLoaded(bool val) { _isLoaded = val; }
         void SetIsReflective(bool val) { _isReflective = val; }
+        void SetIsRefractive(bool val) { _isRefractive = val; }
         void SetManagerName(std::string val) { _managerName = val; }
         void SetPosition(float x, float y, float z);
         void SetRotation(float pitch, float yaw, float roll);
@@ -40,6 +44,7 @@ class VisibleGameObject
         bool _isLoaded;
         bool _isReflective;
         bool _isRefractive;
+        float scaleFactor;
         bool _useProgrammablePipeline;
         glm::mat4x4 _rotationMatrix;
         glm::vec3 _position;

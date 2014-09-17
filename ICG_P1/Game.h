@@ -51,4 +51,10 @@ class Game
 
         static void TW_CALL GetCameraDirCB(void * value, void * clientData);
         static void TW_CALL SetCameraDirCB(const void * value, void * clientData);
+
+        static void TW_CALL GetReflective(void * value, void * clientData);
+        static void TW_CALL SetReflective(const void * value, void * clientData);
+
+        static void TW_CALL GetRefractive(void * value, void * clientData);
+        static void TW_CALL SetRefractive(const void * value, void * clientData);
 };
