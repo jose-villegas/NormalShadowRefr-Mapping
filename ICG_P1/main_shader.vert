@@ -18,8 +18,9 @@ uniform float refractiveIndex = 1.33;
 
 varying vec3 Refl;
 
-varying vec4 ShadowCoord;
-uniform mat4 DepthBiasMVP;
+varying vec4 ShadowCoord[NUM_LIGHTS];;
+uniform mat4 DepthBiasMVP0;
+uniform mat4 DepthBiasMVP1;
 
 uniform mat4 invView;
 
@@ -60,11 +61,12 @@ void main()
 
 	if(bEnableShadowMapping == 1)
 	{
-		ShadowCoord = DepthBiasMVP * vec4(gl_Vertex.xyz, 1);
+		ShadowCoord[0] = DepthBiasMVP0 * vec4(gl_Vertex.xyz, 1);
+		ShadowCoord[1] = DepthBiasMVP1 * vec4(gl_Vertex.xyz, 1);
 	}
 	else
 	{
-		ShadowCoord = vec4(0);
+		ShadowCoord[0] = ShadowCoord[1] = vec4(0);
 	}
 
 	for(i = 0; i < NUM_LIGHTS; i++)

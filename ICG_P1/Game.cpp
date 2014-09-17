@@ -137,6 +137,7 @@ void Game::GameLoop()
     {
         case Game::Playing:
             {
+                _mainWindow.clear();
                 // Clear the depth buffer
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 // Apply some transformations
@@ -218,7 +219,7 @@ void Game::InitUI()
     // Defining new enum type
     TwType lightType = TwDefineEnumFromString("Light Type", "Directional,Point,Spot");
 
-    for (int i = 0; i < MainEngine::NUM_LIGHTS; i++)
+    for (int i = 0; i < NUM_LIGHTS; i++)
     {
         Light * b = new Light();
         MainEngine::light.push_back(b);
@@ -376,7 +377,7 @@ void Game::MainEngineInit()
     MainEngine::_mainWindow = &_mainWindow;
     // Create Textures and Frame Buffers
     MainEngine::CreateNullTexture(2, 2);
-    ShadowMap::Create(2 * _mainWindow.getSize().x, 2 * _mainWindow.getSize().y);
+    ShadowMap::Create(4096, 4096);
     Reflection::Create(1024, 1024);
 }
 
@@ -396,7 +397,7 @@ void Game::InitMainWindow(sf::VideoMode &desktop)
 {
     sf::ContextSettings Settings;
     Settings.depthBits = desktop.bitsPerPixel; // Request a 32 bits depth buffer
-    Settings.antialiasingLevel = 8; // Anti aliasing
+    Settings.antialiasingLevel = 16; // Anti aliasing
     GraphicSettings::setAnistrophy(16.0f); // Filtro anistropico
     GraphicSettings::setSettings(Settings);
     // Create Window

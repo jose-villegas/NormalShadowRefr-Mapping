@@ -19,8 +19,9 @@ uniform int bEnableReflection = 0;
 uniform int bEnableRefraction = 0;
 
 // Shadow Mapping
-uniform sampler2D shadowMap;
-varying vec4 ShadowCoord;
+uniform sampler2D shadowMap0;
+uniform sampler2D shadowMap1;
+varying vec4 ShadowCoord[NUM_LIGHTS];
 
 // Cube Mapping Environment Reflection
 uniform samplerCube CubeMap;
@@ -41,21 +42,31 @@ void main()
 	if(bEnableShadowMapping == 1)
 	{
 		float bias = 0.005;
-
-		if ( texture( shadowMap, ShadowCoord.st ).z  <  ShadowCoord.z - bias)
-		{
-			visibility = 0.5;
-		}
-
 		vec4 black = vec4(vec3(0), 1.0);
 
 		// If the light is disable then don't map shadows
-		if(gl_LightSource[0].ambient == black && 
+		if(!(gl_LightSource[0].ambient == black && 
 		   gl_LightSource[0].specular == black && 
-		   gl_LightSource[0].diffuse == black)
+		   gl_LightSource[0].diffuse == black))
 		{
-			visibility = 1.0;
+			if ( texture( shadowMap0, ShadowCoord[0].st ).z  <  ShadowCoord[0].z - bias)
+			{
+				visibility *= 0.5;
+			}
+		}	
+		
+		// If the light is disable then don't map shadows
+		if(!(gl_LightSource[1].ambient == black && 
+		   gl_LightSource[1].specular == black && 
+		   gl_LightSource[1].diffuse == black))
+		{
+			if ( texture( shadowMap1, ShadowCoord[1].st ).z  <  ShadowCoord[1].z - bias)
+			{
+				visibility *= 0.5;
+			}
 		}
+		
+
 	} 
 	else
 	{

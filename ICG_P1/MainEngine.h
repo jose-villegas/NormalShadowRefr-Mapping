@@ -4,6 +4,9 @@
 #include "Game.h"
 #include "Light.h"
 
+#define MAX_LIGHTS 8
+#define NUM_LIGHTS 2
+
 class MainEngine
 {
     public:
@@ -18,8 +21,6 @@ class MainEngine
         static sf::Clock frameClock;
         static sf::Clock gameClock;
         static sf::RenderWindow * _mainWindow;
-        static unsigned char MAX_LIGHTS;
-        static unsigned char NUM_LIGHTS;
         static vector<Light *> light;
         // Methods
         static float GetFrameTime();

@@ -114,8 +114,6 @@ void SceneManager::DrawScene()
     {
         if (_gameObjects[i].second->GetEnableRender())
         {
-            if (MainEngine::_enableShadows) { ComputeModelMatrix_ShadowMapping(i); }
-
             if (_gameObjects[i].second->GetIsReflective() || _gameObjects[i].second->GetIsRefractive())
             {
                 DrawCubeMap(_gameObjects[i].second);
@@ -149,46 +147,86 @@ void SceneManager::DrawUsingFixedPipeline()
 
 void SceneManager::DrawShadowMapping()
 {
-    // Render from Light's POV
-    ShadowMap::DepthTestingMode();
-    glBindFramebuffer(GL_FRAMEBUFFER, ShadowMap::GetFrameBuffer());
-    glViewport(0, 0, ShadowMap::GetSize().x, ShadowMap::GetSize().y);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glCullFace(GL_FRONT);
-    glUseProgram(MainEngine::shaders["Depth"]);
-    ShadowMap::CalculateDepthVP(MainEngine::light[0]);
-    DrawUsingFixedPipeline();
-    glUseProgram(0);
+    for (int index = 0; index < NUM_LIGHTS; index++)
+    {
+        // Render from Light's POV
+        ShadowMap::DepthTestingMode();
+        glBindFramebuffer(GL_FRAMEBUFFER, ShadowMap::GetFrameBuffer(index));
+        glViewport(0, 0, ShadowMap::GetSize().x, ShadowMap::GetSize().y);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_FRONT);
+        glUseProgram(MainEngine::shaders["Depth"]);
+        ShadowMap::CalculateDepthVP(MainEngine::light[index], index);
+
+        // Draw Scene To FBO
+        for (int i = 0; i < _gameObjects.size(); i++)
+        {
+            if (_gameObjects[i].second->GetEnableRender())
+            {
+                // Calculate Model Matrix and Multiply for View and Projection
+                ShadowMap::CalculateMVPMatrix(_gameObjects[i].second, index);
+                glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["Depth"], "depthMVP"), 1, GL_FALSE,
+                                   ShadowMap::GetDepthMVP(index));
+                _gameObjects[i].second->EnableProgrammablePipeline(false);
+                _gameObjects[i].second->Draw();
+                _gameObjects[i].second->EnableProgrammablePipeline(true);
+            }
+        }
+
+        glUseProgram(0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
     // Render from Camera's POV
     ShadowMap::MappingMode();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, MainEngine::_mainWindow->getSize().x, MainEngine::_mainWindow->getSize().y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_BACK);
     glUseProgram(MainEngine::shaders["MainShader"]);
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, ShadowMap::GetDepthMap());
-    glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "shadowMap"), 5);
+
+    // Asign Depth Maps Per Light
+    for (int i = 0; i < NUM_LIGHTS; i++)
+    {
+        glActiveTexture(GL_TEXTURE8 + i);
+        glBindTexture(GL_TEXTURE_2D, ShadowMap::GetDepthMap(i));
+        glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], ("shadowMap" + std::to_string(i)).c_str()), 8 + i);
+    }
+
+    // Enable Shadow Mapping
     glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableShadowMapping"), 1);
-    DrawScene();
+
+    // Render Scene with Shadows
+    for (int i = 0; i < _gameObjects.size(); i++)
+    {
+        if (_gameObjects[i].second->GetEnableRender())
+        {
+            ShadowMap::CalculateBiasMVPMatrix(_gameObjects[i].second, 0);
+            ShadowMap::CalculateBiasMVPMatrix(_gameObjects[i].second, 1);
+            glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["MainShader"], "DepthBiasMVP0"), 1, GL_FALSE,
+                               ShadowMap::GetDepthBiasMVP(0));
+            glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["MainShader"], "DepthBiasMVP1"), 1, GL_FALSE,
+                               ShadowMap::GetDepthBiasMVP(1));
+
+            if (_gameObjects[i].second->GetIsReflective() || _gameObjects[i].second->GetIsRefractive())
+            {
+                DrawCubeMap(_gameObjects[i].second);
+            }
+            else
+            {
+                if (!_gameObjects[i].second->GetIsReflective()) { glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"), 0); }
+
+                if (!_gameObjects[i].second->GetIsRefractive()) { glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableRefraction"), 0); }
+            }
+
+            _gameObjects[i].second->Draw();
+        }
+    }
+
     glUseProgram(0);
 }
 
 void SceneManager::ComputeModelMatrix_ShadowMapping(int i)
 {
-    if (ShadowMap::IsDepthTesting())
-    {
-        ShadowMap::CalculateMVPMatrix(_gameObjects[i].second);
-        glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["Depth"], "depthMVP"), 1, GL_FALSE,
-                           ShadowMap::GetDepthMVP());
-    }
-
-    if (ShadowMap::IsMapping())
-    {
-        ShadowMap::CalculateBiasMVPMatrix(_gameObjects[i].second);
-        glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["MainShader"], "DepthBiasMVP"), 1, GL_FALSE,
-                           ShadowMap::GetDepthBiasMVP());
-    }
 }
 
 void SceneManager::DrawCubeMap(VisibleGameObject * model)
@@ -277,7 +315,7 @@ void SceneManager::DrawCubeMap(VisibleGameObject * model)
     glm::mat4 invViewMatrix = glm::inverse(glm::lookAt(DefaultCamera::position, DefaultCamera::lookat, glm::vec3(0, 1, 0)));
     glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["MainShader"], "invView"), 1, GL_FALSE,
                        &invViewMatrix[0][0]);
-    glActiveTexture(GL_TEXTURE6);
+    glActiveTexture(GL_TEXTURE16);
     glBindTexture(GL_TEXTURE_CUBE_MAP, Reflection::GetBox2CubeMap());
-    glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "CubeMap"), 6);
+    glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "CubeMap"), 16);
 }
