@@ -104,22 +104,22 @@ void Game::GameLoop()
 
             if (currentEvent.type == sf::Event::MouseButtonReleased && currentEvent.mouseButton.button == sf::Mouse::Left)
             {
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                // Render In Selection Model
                 DrawSelectionMode();
                 unsigned char pixel[3];
                 GLint viewport[4];
+                sf::Event::MouseButtonEvent mouse = currentEvent.mouseButton;
                 glGetIntegerv(GL_VIEWPORT, viewport);
-                glReadPixels(currentEvent.mouseButton.x, viewport[3] - currentEvent.mouseButton.y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE,
-                             pixel);
+                glReadPixels(mouse.x, viewport[3] - mouse.y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+                int pickedID = pixel[0] + pixel[1] * 256 + pixel[2] * 256 * 256;
+                VisibleGameObject * selected =  _scene.GetAt(pickedID - 1);
 
-                if ((int)pixel[0] >= 250 && (int)pixel[0] <= 255)
+                if (selected != NULL)
                 {
-                    selectedObjectName = _scene.GetAt(255 - (int)pixel[0])->GetManagerName();
-                    selectedObject = _scene.GetAt(255 - (int)pixel[0]);
+                    selectedObjectName = selected->GetManagerName();
+                    selectedObject = selected;
                 }
-
-                glEnable(GL_TEXTURE_2D);
-                glEnable(GL_LIGHTING);
-                glColor3f(1.0f, 1.0f, 1.0f);
             }
 
             _scene.UpdateAll(currentEvent);
@@ -149,8 +149,6 @@ void Game::GameLoop()
                 _scene.Draw();
                 // Draw Lights
                 DrawLightSpheres();
-                // Objects Picking
-                //DrawSelectionMode();
                 // Draw Anttweakbar
                 TwDraw();
                 // Display Changes
@@ -278,11 +276,23 @@ void Game::InitUI()
 
 void Game::DrawSelectionMode()
 {
-    //for (int i = 0; i < _gameObjectManager.GetGameObjects().size(); i++)
-    //{
-    //    //glColor3f((255.0f - i) / 255.0f, (255.0f - i) / 255.0f, (255.0f - i) / 255.0f);
-    //    _gameObjectManager.GetAt(i)->Draw();
-    //}
+    glUseProgram(0);
+    GLuint pickingColorID = glGetUniformLocation(MainEngine::shaders["Picking"], "PickingColor");
+    glUseProgram(MainEngine::shaders["Picking"]);
+
+    for (int i = 0; i < _scene.GetGameObjects().size(); i++)
+    {
+        // Model Color For Picking
+        int r = ((i + 1) & 0x000000FF) >>  0;
+        int g = ((i + 1) & 0x0000FF00) >>  8;
+        int b = ((i + 1) & 0x00FF0000) >> 16;
+        glUniform4f(pickingColorID, r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+        _scene.GetAt(i)->EnableProgrammablePipeline(false);
+        _scene.GetAt(i)->Draw();
+        _scene.GetAt(i)->EnableProgrammablePipeline(true);
+    }
+
+    glUseProgram(0);
 }
 
 void TW_CALL Game::GetRotationCB(void * value, void * clientData)
@@ -421,11 +431,11 @@ void Game::LoadModels()
     teapot->SetPosition(0.0f, 20.0f, -100.0f);
     teapot->Scale(40);
     teapot->SetIsReflective(true);
-    VisibleGameObject * floor = new VisibleGameObject("Models/floor/floor.obj");
-    floor->SetPosition(0.0f, 0.0f, -150.0f);
-    floor->Scale(500);
+    VisibleGameObject * floorModel = new VisibleGameObject("Models/floor/floor.obj");
+    floorModel->SetPosition(0.0f, 0.0f, -150.0f);
+    floorModel->Scale(500);
     _scene.Add(cube->GetFilepath(), cube);
-    _scene.Add(floor->GetFilepath(), floor);
+    _scene.Add(floorModel->GetFilepath(), floorModel);
     _scene.Add(teapot->GetFilepath(), teapot);
     _scene.Add(suzanne->GetFilepath(), suzanne);
     selectedObjectName = _scene.GetAt(0)->GetManagerName();

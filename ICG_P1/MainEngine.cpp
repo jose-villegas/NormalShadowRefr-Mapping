@@ -39,12 +39,9 @@ GLuint LoadShaderFromFile(std::string vertexFile, std::string pixelFile)
 
 void MainEngine::LoadShaders()
 {
-    shaders["Blinn-Phong"] = LoadShaderFromFile("blinnphong.vert", "blinnphong.frag");
-    shaders["Cook-Torrance"] = LoadShaderFromFile("cook_torrance.vert", "cook_torrance.frag");
+    shaders["Picking"] = LoadShaderFromFile("picking.vert", "picking.frag");
     shaders["Depth"] = LoadShaderFromFile("depth.vert", "depth.frag");
     shaders["MainShader"] = LoadShaderFromFile("main_shader.vert", "main_shader.frag");
-    shaders["Normal-Mapping"] = LoadShaderFromFile("normal_mapping.vert", "normal_mapping.frag");
-    shaders["Shadow-Mapping"] = LoadShaderFromFile("shadow_mapping.vert", "shadow_mapping.frag");
 }
 
 void MainEngine::CreateNullTexture(int width, int height)

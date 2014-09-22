@@ -238,7 +238,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="normal_mapping.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DefaultCamera.h" />
@@ -280,17 +279,12 @@
     <ClCompile Include="VisibleGameObject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="blinnphong.frag" />
-    <None Include="blinnphong.vert" />
-    <None Include="cook_torrance.frag" />
-    <None Include="cook_torrance.vert" />
     <None Include="depth.frag" />
     <None Include="depth.vert" />
     <None Include="main_shader.frag" />
     <None Include="main_shader.vert" />
-    <None Include="normal_mapping.frag" />
-    <None Include="shadow_mapping.frag" />
-    <None Include="shadow_mapping.vert" />
+    <None Include="picking.frag" />
+    <None Include="picking.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

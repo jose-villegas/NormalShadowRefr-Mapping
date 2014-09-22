@@ -29,107 +29,99 @@ varying vec3 Refl;
 
 void main()
 {
-	int i;
-	float visibility = 1.0;
-	vec4 color = vec4(vec3(0.1), 1);
-	vec3 n = normalize(texture(normalMap, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
-	float cosTheta, cosAlpha;
+    int i;
+    float visibility = 1.0;
+    vec4 color = vec4(vec3(0.1), 1);
+    vec3 n = normalize(texture(normalMap, gl_TexCoord[0].st).rgb * 2.0 - 1.0);
+    float cosTheta, cosAlpha;
+    vec3 E = normalize(eyeVec);
 
-	vec3 E = normalize(eyeVec);
+    if (bEnableBumpMapping == 0)  { n = normalize(normal); }
 
-	if(bEnableBumpMapping == 0)  { n = normalize(normal); }
+    if (bEnableShadowMapping == 1)
+    {
+        float bias = 0.005;
+        vec4 black = vec4(vec3(0), 1.0);
 
-	if(bEnableShadowMapping == 1)
-	{
-		float bias = 0.005;
-		vec4 black = vec4(vec3(0), 1.0);
+        // If the light is disable then don't map shadows
+        if (!(gl_LightSource[0].ambient == black &&
+                gl_LightSource[0].specular == black &&
+                gl_LightSource[0].diffuse == black))
+        {
+            if (texture(shadowMap0, ShadowCoord[0].st).z  <  ShadowCoord[0].z - bias)
+            {
+                visibility *= 0.5;
+            }
+        }
 
-		// If the light is disable then don't map shadows
-		if(!(gl_LightSource[0].ambient == black && 
-		   gl_LightSource[0].specular == black && 
-		   gl_LightSource[0].diffuse == black))
-		{
-			if ( texture( shadowMap0, ShadowCoord[0].st ).z  <  ShadowCoord[0].z - bias)
-			{
-				visibility *= 0.5;
-			}
-		}	
-		
-		// If the light is disable then don't map shadows
-		if(!(gl_LightSource[1].ambient == black && 
-		   gl_LightSource[1].specular == black && 
-		   gl_LightSource[1].diffuse == black))
-		{
-			if ( texture( shadowMap1, ShadowCoord[1].st ).z  <  ShadowCoord[1].z - bias)
-			{
-				visibility *= 0.5;
-			}
-		}
-		
+        // If the light is disable then don't map shadows
+        if (!(gl_LightSource[1].ambient == black &&
+                gl_LightSource[1].specular == black &&
+                gl_LightSource[1].diffuse == black))
+        {
+            if (texture(shadowMap1, ShadowCoord[1].st).z  <  ShadowCoord[1].z - bias)
+            {
+                visibility *= 0.5;
+            }
+        }
+    }
+    else
+    {
+        visibility = 1.0;
+    }
 
-	} 
-	else
-	{
-		visibility = 1.0;
-	}
+    for (i = 0; i < NUM_LIGHTS; i++)
+    {
+        float spot = 1.0;
+        vec3 l = normalize(lightDir[i]);
+        vec3 h = normalize(halfVector[i]);
 
-	for(i = 0; i < NUM_LIGHTS; i++)
-	{
-		float spot = 1.0;
-		vec3 l = normalize(lightDir[i]);
-		vec3 h = normalize(halfVector[i]);
+        // Spot Light
+        if (gl_LightSource[i].spotCutoff <= 90.0)
+        {
+            vec3 spotDir = vec3(gl_LightSource[i].spotDirection);
 
-		// Spot Light
-		if(gl_LightSource[i].spotCutoff <= 90.0)
-		{
-			
+            if (bEnableBumpMapping == 1) { spotDir = lightSpotDir[i]; }
 
-			vec3 spotDir = vec3(gl_LightSource[i].spotDirection);
+            vec3 D = normalize(spotDir);
+            float cosAngle = dot(-l, D);
+            float spotExponentScaled = gl_LightSource[i].spotExponent * gl_LightSource[i].spotCutoff / 128;
+            float outerConeAngle = gl_LightSource[i].spotCosCutoff;
+            float innerConeAngle = cos(spotExponentScaled * 3.14 / 180);
+            float cosInnerMinusOuter = outerConeAngle - innerConeAngle;
+            spot = 1 - clamp((cosAngle - innerConeAngle) / cosInnerMinusOuter, 0.0, 1.0);
 
-			if(bEnableBumpMapping == 1) { spotDir = lightSpotDir[i]; }
+            if (gl_LightSource[i].spotCutoff == 0)
+            {
+                spot = 0;
+            }
+        }
 
-			vec3 D = normalize(spotDir);
-			float cosAngle = dot(-l, D);
-			float spotExponentScaled = gl_LightSource[i].spotExponent * gl_LightSource[i].spotCutoff / 128;
-			float outerConeAngle = gl_LightSource[0].spotCosCutoff;
-			float innerConeAngle = cos(spotExponentScaled * 3.14 / 180);
-			float cosInnerMinusOuter = outerConeAngle - innerConeAngle;
+        vec3 R = reflect(-l, n);
+        float nDotL = max(0.0, dot(n, l));
+        float nDotH;
+        cosAlpha = clamp(dot(E, R), 0, 1);
+        cosTheta = clamp(dot(n, l), 0, 1);
 
-			spot -= clamp((cosAngle - innerConeAngle) / cosInnerMinusOuter, 0.0, 1.0);
-			
-			if(gl_LightSource[i].spotCutoff == 0)
-			{
-				spot = 0;
-			}
-		}
-		vec3 R = reflect(-l,n);
-		
-		float nDotL = max(0.0, dot(n, l));
-		float nDotH;
+        if (bEnableBumpMapping == 0)
+        {
+            vec3 halfDir = normalize(l + eyeVec);
+            nDotH = max(0.0, dot(normal, halfDir));
+        }
+        else { nDotH = max(0.0, dot(n, h)); }
 
-		cosAlpha = clamp( dot( E,R ), 0, 1 );
-		cosTheta = clamp( dot( n,l ), 0, 1 );
+        float power = (nDotL == 0.0) ? 0.0 : pow(nDotH, gl_FrontMaterial.shininess);
+        vec4 ambient = gl_FrontLightProduct[i].ambient;
+        vec4 diffuse = gl_FrontLightProduct[i].diffuse * nDotL * cosTheta;
+        vec4 specular = gl_FrontLightProduct[i].specular * power * pow(cosAlpha, 5);
+        color += (ambient + diffuse + specular) * att[i] * spot * visibility;
+    }
 
-		if(bEnableBumpMapping == 0)
-		{
-			vec3 halfDir = normalize(l + eyeVec);
-			nDotH = max(0.0, dot(normal, halfDir));
-		}
-		else { nDotH = max(0.0, dot(n, h)); }
+    gl_FragColor = color * texture(colorMap, gl_TexCoord[0].st);
+    gl_FragColor.a = materialAlpha;
 
-		float power = (nDotL == 0.0) ? 0.0 : pow(nDotH, gl_FrontMaterial.shininess);
-
-		vec4 ambient = gl_FrontLightProduct[i].ambient;
-		vec4 diffuse = gl_FrontLightProduct[i].diffuse * nDotL * cosTheta;
-		vec4 specular = gl_FrontLightProduct[i].specular * power * pow(cosAlpha,5);
-		color += ( ambient + diffuse + specular ) * att[i] * spot * visibility;
-	}
-
-	gl_FragColor = color * texture(colorMap, gl_TexCoord[0].st);
-	gl_FragColor.a = materialAlpha;
-
-	if(bEnableReflection == 1 || bEnableRefraction == 1) 
-	{ 
-		gl_FragColor += texture(CubeMap, Refl.xyz);
-	}
+    if (bEnableReflection == 1 || bEnableRefraction == 1)
+    {
+        gl_FragColor += texture(CubeMap, Refl.xyz);
+    }
 }
