@@ -264,7 +264,7 @@ void Game::InitUI()
                " Label='Position' opened=true");
     TwAddVarCB(bar2, "Is Reflective", TW_TYPE_BOOLCPP, SetReflective, GetReflective, this, "");
     TwAddVarCB(bar2, "Is Refractive", TW_TYPE_BOOLCPP, SetRefractive, GetRefractive, this, "");
-    TwAddVarCB(bar2, "Refraction Index", TW_TYPE_FLOAT, SetRefractiveIndex, GetRefractiveIndex, this, "");
+    TwAddVarCB(bar2, "Refraction Index", TW_TYPE_FLOAT, SetRefractiveIndex, GetRefractiveIndex, this, "step=0.001");
     TwBar * bar3 = TwNewBar("Opciones");
     // Change bar position
     TwDefine(" Opciones position='5 550' ");

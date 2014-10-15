@@ -143,7 +143,7 @@ void main()
         gl_FragColor += texture(CubeMap, r.xyz);
 	} else if (bEnableRefraction == 1)
     {
-		vec3 refrac = refract(E, n, 1 / refractiveIndex);
+		vec3 refrac = refract(E, n, refractiveIndex);
         vec3 r = (invView * vec4(refrac, 0.0)).xyz;
         gl_FragColor += texture(CubeMap, r.xyz);
     }

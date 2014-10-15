@@ -307,7 +307,7 @@ void VisibleGameObject::DrawProgrammablePipeline()
 
         if (_isRefractive)
         {
-            glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "refractiveIndex"), refractiveIndex);
+            glUniform1f(glGetUniformLocation(MainEngine::shaders["MainShader"], "refractiveIndex"), refractiveIndex);
         }
 
         if (pMaterial->bumpMapFilename.empty())
