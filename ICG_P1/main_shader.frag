@@ -25,7 +25,8 @@ varying vec4 ShadowCoord[NUM_LIGHTS];
 
 // Cube Mapping Environment Reflection
 uniform samplerCube CubeMap;
-varying vec3 Refl;
+uniform mat4 invView;
+uniform float refractiveIndex = 1.33;
 
 void main()
 {
@@ -120,8 +121,15 @@ void main()
     gl_FragColor = color * texture(colorMap, gl_TexCoord[0].st);
     gl_FragColor.a = materialAlpha;
 
-    if (bEnableReflection == 1 || bEnableRefraction == 1)
+    if(bEnableReflection == 1)
+	{
+		vec3 reflec = reflect(-E, n);
+        vec3 r = (invView * vec4(reflec, 0.0)).xyz;
+        gl_FragColor += texture(CubeMap, r.xyz);
+	} else if (bEnableRefraction == 1)
     {
-        gl_FragColor += texture(CubeMap, Refl.xyz);
+		vec3 refrac = refract(E, n, 1 / refractiveIndex);
+        vec3 r = (invView * vec4(refrac, 0.0)).xyz;
+        gl_FragColor += texture(CubeMap, r.xyz);
     }
 }

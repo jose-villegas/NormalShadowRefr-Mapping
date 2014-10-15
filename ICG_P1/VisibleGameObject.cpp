@@ -4,13 +4,13 @@
 #include "MainEngine.h"
 #include <atlstr.h>
 
-VisibleGameObject::VisibleGameObject() : _isLoaded(false), _useProgrammablePipeline(true), _isReflective(false),
-    _isRefractive(false), scaleFactor(1.0)
+VisibleGameObject::VisibleGameObject() : _isLoaded(false), _useProgrammablePipeline(true), _isReflective(false), _isPlanar(false),
+    _isRefractive(false), scaleFactor(1.0), refractiveIndex(1.33f)
 {
 }
 
-VisibleGameObject::VisibleGameObject(string filename) : _isLoaded(false), _useProgrammablePipeline(true),
-    _isReflective(false), _isRefractive(false), scaleFactor(1.0)
+VisibleGameObject::VisibleGameObject(string filename) : _isLoaded(false), _useProgrammablePipeline(true), _isPlanar(false),
+    _isReflective(false), _isRefractive(false), scaleFactor(1.0), refractiveIndex(1.33f)
 {
     Load(filename);
     assert(_isLoaded);
@@ -304,6 +304,11 @@ void VisibleGameObject::DrawProgrammablePipeline()
         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, pMaterial->diffuse);
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, pMaterial->specular);
         glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, pMaterial->shininess * 128.0f);
+
+        if (_isRefractive)
+        {
+            glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "refractiveIndex"), refractiveIndex);
+        }
 
         if (pMaterial->bumpMapFilename.empty())
         {

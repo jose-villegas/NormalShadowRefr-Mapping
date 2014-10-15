@@ -97,7 +97,7 @@ VisibleGameObject * SceneManager::GetAt(int index) const
 {
     if (_gameObjects.empty() || index >= _gameObjects.size()) { return NULL; }
 
-    return next(_gameObjects.begin(), index)->second;
+    return _gameObjects[index].second;
 }
 
 void SceneManager::RemoveAt(int index)
@@ -231,8 +231,6 @@ void SceneManager::ComputeModelMatrix_ShadowMapping(int i)
 
 void SceneManager::DrawCubeMap(VisibleGameObject * model)
 {
-    glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"), 0);
-    glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableRefraction"), 0);
     glBindFramebuffer(GL_FRAMEBUFFER, Reflection::GetFrameBuffer());
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, Reflection::GetRenderBuffer());
@@ -241,10 +239,17 @@ void SceneManager::DrawCubeMap(VisibleGameObject * model)
     glm::vec3 lookat;
     glm::vec3 upVector;
     glm::vec3 position = model->GetPosition();
+    bool setPlanar = false;
 
     // Render Normally
     for (GLenum i = GL_TEXTURE_CUBE_MAP_POSITIVE_X; i < GL_TEXTURE_CUBE_MAP_NEGATIVE_Z + 1; i++)
     {
+        if (!setPlanar && model->GetIsPlanar())
+        {
+            i = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+            setPlanar = true;
+        }
+
         switch (i)
         {
             case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
@@ -297,6 +302,14 @@ void SceneManager::DrawCubeMap(VisibleGameObject * model)
         {
             if (_gameObjects[indexModel].second->GetEnableRender() && _gameObjects[indexModel].second != model)
             {
+                //////////////////////////////////////////////////////////////////////////
+                // Reflective | Refractive Objects
+                glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"),
+                            _gameObjects[indexModel].second->GetIsReflective());
+                glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableRefraction"),
+                            _gameObjects[indexModel].second->GetIsRefractive());
+                //////////////////////////////////////////////////////////////////////////
+                // Render Projection
                 _gameObjects[indexModel].second->Draw();
             }
         }
@@ -308,13 +321,12 @@ void SceneManager::DrawCubeMap(VisibleGameObject * model)
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, MainEngine::_mainWindow->getSize().x, MainEngine::_mainWindow->getSize().y);
-
-    if (model->GetIsReflective()) { glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"), 1); }
-    else if (model->GetIsRefractive()) { glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableRefraction"), 1); }
-
+    // Set Reflective / Refraction Uniform
+    glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableReflection"), model->GetIsReflective());
+    glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "bEnableRefraction"), model->GetIsRefractive());
+    // Create Inv View Matrix
     glm::mat4 invViewMatrix = glm::inverse(glm::lookAt(DefaultCamera::position, DefaultCamera::lookat, glm::vec3(0, 1, 0)));
-    glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["MainShader"], "invView"), 1, GL_FALSE,
-                       &invViewMatrix[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["MainShader"], "invView"), 1, GL_FALSE, &invViewMatrix[0][0]);
     glActiveTexture(GL_TEXTURE16);
     glBindTexture(GL_TEXTURE_CUBE_MAP, Reflection::GetBox2CubeMap());
     glUniform1i(glGetUniformLocation(MainEngine::shaders["MainShader"], "CubeMap"), 16);

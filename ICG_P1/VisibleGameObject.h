@@ -13,6 +13,7 @@ class VisibleGameObject
         bool GetIsReflective() const { return _isReflective; }
         bool GetIsRefractive() const { return _isRefractive; }
         float GetScaleFactor() const { return scaleFactor; }
+        bool GetIsPlanar() const { return _isPlanar; }
         void SetScaleFactor(float val) { scaleFactor = val; }
         float * GetObjectRotation();
         glm::mat4x4 GetRotationMatrix() const { return _rotationMatrix; }
@@ -30,10 +31,13 @@ class VisibleGameObject
         void SetIsLoaded(bool val) { _isLoaded = val; }
         void SetIsReflective(bool val) { _isReflective = val; }
         void SetIsRefractive(bool val) { _isRefractive = val; }
+        void SetIsPlanar(bool val) { _isPlanar = val; }
         void SetManagerName(std::string val) { _managerName = val; }
         void SetPosition(float x, float y, float z);
         void SetRotation(float pitch, float yaw, float roll);
         void SetRotation(float quat[4]);
+        float GetRefractiveIndex() const { return refractiveIndex; }
+        void SetRefractiveIndex(float val) { refractiveIndex = val; }
     private:
         GLuint LoadTexture(const char * pszFilename);
         ModelOBJ obj;
@@ -44,6 +48,10 @@ class VisibleGameObject
         bool _isLoaded;
         bool _isReflective;
         bool _isRefractive;
+        bool _isPlanar;
+
+        float refractiveIndex;
+
         float scaleFactor;
         bool _useProgrammablePipeline;
         glm::mat4x4 _rotationMatrix;

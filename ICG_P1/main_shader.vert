@@ -16,8 +16,6 @@ uniform int bEnableRefraction = 0;
 
 uniform float refractiveIndex = 1.33;
 
-varying vec3 Refl;
-
 varying vec4 ShadowCoord[NUM_LIGHTS];;
 uniform mat4 DepthBiasMVP0;
 uniform mat4 DepthBiasMVP1;
@@ -33,7 +31,8 @@ void main()
     eyeVec = -vVertex.xyz;
     normal = normalize(gl_NormalMatrix * gl_Normal);
     mat3 tbnMatrix;
-
+    
+	/*
     if (bEnableReflection == 1)
     {
         vec3 Reflection = reflect(normalize(vVertex), normal);
@@ -41,9 +40,9 @@ void main()
     }
     else if (bEnableRefraction == 1)
     {
-        vec3 Refraction = refract(normalize(vVertex), normal, refractiveIndex);
+        vec3 Refraction = refract(normalize(vVertex), normal, 1 / refractiveIndex);
         Refl = (invView * vec4(Refraction, 0.0)).xyz;
-    }
+    }*/
 
     if (bEnableBumpMapping == 1)
     {

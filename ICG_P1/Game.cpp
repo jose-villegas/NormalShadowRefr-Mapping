@@ -264,6 +264,7 @@ void Game::InitUI()
                " Label='Position' opened=true");
     TwAddVarCB(bar2, "Is Reflective", TW_TYPE_BOOLCPP, SetReflective, GetReflective, this, "");
     TwAddVarCB(bar2, "Is Refractive", TW_TYPE_BOOLCPP, SetRefractive, GetRefractive, this, "");
+    TwAddVarCB(bar2, "Refraction Index", TW_TYPE_FLOAT, SetRefractiveIndex, GetRefractiveIndex, this, "");
     TwBar * bar3 = TwNewBar("Opciones");
     // Change bar position
     TwDefine(" Opciones position='5 550' ");
@@ -420,6 +421,12 @@ void Game::InitMainWindow(sf::VideoMode &desktop)
 
 void Game::LoadModels()
 {
+    VisibleGameObject * mirror = new VisibleGameObject("Models/mirror/mirror.obj");
+    mirror->Scale(40);
+    mirror->SetPosition(0, 40, -130.0f);
+    mirror->SetRotation(30, 0, 0);
+    mirror->SetIsReflective(true);
+    mirror->SetIsPlanar(true);
     VisibleGameObject * cube = new VisibleGameObject("Models/Cube/cube.obj");
     cube->SetPosition(50, 40, -100.0f);
     cube->Scale(40);
@@ -436,6 +443,7 @@ void Game::LoadModels()
     floorModel->Scale(500);
     _scene.Add(cube->GetFilepath(), cube);
     _scene.Add(floorModel->GetFilepath(), floorModel);
+    _scene.Add(mirror->GetFilepath(), mirror);
     _scene.Add(teapot->GetFilepath(), teapot);
     _scene.Add(suzanne->GetFilepath(), suzanne);
     selectedObjectName = _scene.GetAt(0)->GetManagerName();
@@ -498,5 +506,24 @@ void TW_CALL Game::SetRefractive(const void * value, void * clientData)
     {
         ((Game *)clientData)->selectedObject->SetIsRefractive(*a);
         ((Game *)clientData)->selectedObject->SetIsReflective(!*a);
+    }
+}
+
+void TW_CALL Game::GetRefractiveIndex(void * value, void * clientData)
+{
+    if (((Game *)clientData)->selectedObject->GetIsRefractive())
+    {
+        float a = static_cast<const Game *>(clientData)->selectedObject->GetRefractiveIndex();
+        float * val = (float *)value;
+        *val = a;
+    }
+}
+
+void TW_CALL Game::SetRefractiveIndex(const void * value, void * clientData)
+{
+    if (((Game *)clientData)->selectedObject->GetIsRefractive())
+    {
+        float * a = (float *)value;
+        ((Game *)clientData)->selectedObject->SetRefractiveIndex(*a);
     }
 }

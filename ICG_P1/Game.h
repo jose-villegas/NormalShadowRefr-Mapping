@@ -57,4 +57,7 @@ class Game
 
         static void TW_CALL GetRefractive(void * value, void * clientData);
         static void TW_CALL SetRefractive(const void * value, void * clientData);
+
+        static void TW_CALL GetRefractiveIndex(void * value, void * clientData);
+        static void TW_CALL SetRefractiveIndex(const void * value, void * clientData);
 };
