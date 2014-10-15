@@ -1,6 +1,10 @@
 #pragma once
 #include "VisibleGameObject.h"
 
+#define DIRECTIONAL_LIGHT 1
+#define SPOT_LIGHT 2
+#define POINT_LIGHT 3
+
 class Light
 {
     public:

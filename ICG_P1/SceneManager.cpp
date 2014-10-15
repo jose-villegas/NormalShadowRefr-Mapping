@@ -149,32 +149,35 @@ void SceneManager::DrawShadowMapping()
 {
     for (int index = 0; index < NUM_LIGHTS; index++)
     {
-        // Render from Light's POV
-        ShadowMap::DepthTestingMode();
-        glBindFramebuffer(GL_FRAMEBUFFER, ShadowMap::GetFrameBuffer(index));
-        glViewport(0, 0, ShadowMap::GetSize().x, ShadowMap::GetSize().y);
-        glClear(GL_DEPTH_BUFFER_BIT);
-        glCullFace(GL_FRONT);
-        glUseProgram(MainEngine::shaders["Depth"]);
-        ShadowMap::CalculateDepthVP(MainEngine::light[index], index);
-
-        // Draw Scene To FBO
-        for (int i = 0; i < _gameObjects.size(); i++)
+        if (MainEngine::light[index]->active)
         {
-            if (_gameObjects[i].second->GetEnableRender())
-            {
-                // Calculate Model Matrix and Multiply for View and Projection
-                ShadowMap::CalculateMVPMatrix(_gameObjects[i].second, index);
-                glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["Depth"], "depthMVP"), 1, GL_FALSE,
-                                   ShadowMap::GetDepthMVP(index));
-                _gameObjects[i].second->EnableProgrammablePipeline(false);
-                _gameObjects[i].second->Draw();
-                _gameObjects[i].second->EnableProgrammablePipeline(true);
-            }
-        }
+            // Render from Light's POV
+            ShadowMap::DepthTestingMode();
+            glBindFramebuffer(GL_FRAMEBUFFER, ShadowMap::GetFrameBuffer(index));
+            glViewport(0, 0, ShadowMap::GetSize().x, ShadowMap::GetSize().y);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glCullFace(GL_FRONT);
+            glUseProgram(MainEngine::shaders["Depth"]);
+            ShadowMap::CalculateDepthVP(MainEngine::light[index], index);
 
-        glUseProgram(0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            // Draw Scene To FBO
+            for (int i = 0; i < _gameObjects.size(); i++)
+            {
+                if (_gameObjects[i].second->GetEnableRender())
+                {
+                    // Calculate Model Matrix and Multiply for View and Projection
+                    ShadowMap::CalculateMVPMatrix(_gameObjects[i].second, index);
+                    glUniformMatrix4fv(glGetUniformLocation(MainEngine::shaders["Depth"], "depthMVP"), 1, GL_FALSE,
+                                       ShadowMap::GetDepthMVP(index));
+                    _gameObjects[i].second->EnableProgrammablePipeline(false);
+                    _gameObjects[i].second->Draw();
+                    _gameObjects[i].second->EnableProgrammablePipeline(true);
+                }
+            }
+
+            glUseProgram(0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
     }
 
     // Render from Camera's POV

@@ -65,13 +65,23 @@ glm::mat4 ShadowMap::CalculateDepthVP(Light * light, int lightIndex)
 {
     float aspectRatio = size.x / size.y;
     // Light Params
-    glm::vec3 lightInvDir = glm::vec3(-light->direction[0], -light->direction[1], -light->direction[2]);
+    glm::vec3 lightDir = glm::vec3(light->direction[0], light->direction[1], light->direction[2]);
     glm::vec3 lightPos = glm::vec3(light->position[0], light->position[1], light->position[2]);
     // Matrices
-    //glm::mat4 depthViewMatrix = glm::lookAt(lightPos, lightPos - lightInvDir, glm::vec3(0, 1, 0));
-    //glm::mat4 depthProjectionMatrix = glm::perspective<float>(90.0f, aspectRatio, 1.0f, 2000.0f);
-    glm::mat4 depthProjectionMatrix = glm::ortho<float>(-1000, 1000, -1000, 1000, 1, 2000);
-    glm::mat4 depthViewMatrix = glm::lookAt(lightPos, glm::vec3(0, 0, -100), glm::vec3(0, 1, 0));
+    glm::mat4 depthViewMatrix;
+    glm::mat4 depthProjectionMatrix;
+
+    if (light->lightType == SPOT_LIGHT)
+    {
+        depthViewMatrix = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0, 1, 0));
+        depthProjectionMatrix = glm::perspective<float>(90.0f, aspectRatio, 1.0f, 2000.0f);
+    }
+    else
+    {
+        depthProjectionMatrix = glm::ortho<float>(-1000, 1000, -1000, 1000, 1, 2000);
+        depthViewMatrix = glm::lookAt(lightPos, glm::vec3(0, 0, -100), glm::vec3(0, 1, 0));
+    }
+
     // VP
     depthVP[lightIndex] = depthProjectionMatrix * depthViewMatrix;
     return depthVP[lightIndex];

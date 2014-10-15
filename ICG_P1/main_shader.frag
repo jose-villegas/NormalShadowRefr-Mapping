@@ -1,5 +1,6 @@
 #define MAX_LIGHTS 8
 #define NUM_LIGHTS 2
+#define MAX_SHADOWS 2
 
 uniform sampler2D colorMap;
 uniform sampler2D normalMap;
@@ -38,32 +39,46 @@ void main()
     vec3 E = normalize(eyeVec);
 
     if (bEnableBumpMapping == 0)  { n = normalize(normal); }
+	float bias = 0.005;
+    vec4 black = vec4(vec3(0), 1.0);
 
+	// Shadows
     if (bEnableShadowMapping == 1)
     {
-        float bias = 0.005;
-        vec4 black = vec4(vec3(0), 1.0);
-
         // If the light is disable then don't map shadows
-        if (!(gl_LightSource[0].ambient == black &&
-                gl_LightSource[0].specular == black &&
-                gl_LightSource[0].diffuse == black))
+        if (!(gl_LightSource[0].ambient == black && gl_LightSource[0].specular == black && gl_LightSource[0].diffuse == black))
         {
-            if (texture(shadowMap0, ShadowCoord[0].st).z  <  ShadowCoord[0].z - bias)
-            {
-                visibility *= 0.5;
-            }
-        }
-
-        // If the light is disable then don't map shadows
-        if (!(gl_LightSource[1].ambient == black &&
-                gl_LightSource[1].specular == black &&
-                gl_LightSource[1].diffuse == black))
+			if(gl_LightSource[0].spotCutoff > 90.0)
+			{
+				if (texture(shadowMap0, ShadowCoord[0].st).z  <  ShadowCoord[0].z - bias)
+				{
+					visibility *= 0.5;
+				}
+			} 
+			else if(gl_LightSource[0].spotCutoff <= 90.0)
+			{
+				if ( texture( shadowMap0, (ShadowCoord[0].xy/ShadowCoord[0].w) ).z  <  (ShadowCoord[0].z-bias)/ShadowCoord[0].w )
+				{
+					visibility *= 0.5;
+				}
+			}
+		}
+		if (!(gl_LightSource[1].ambient == black && gl_LightSource[1].specular == black && gl_LightSource[1].diffuse == black))
         {
-            if (texture(shadowMap1, ShadowCoord[1].st).z  <  ShadowCoord[1].z - bias)
-            {
-                visibility *= 0.5;
-            }
+			if(gl_LightSource[1].spotCutoff > 90.0)
+			{
+				if (texture(shadowMap1, ShadowCoord[1].st).z  <  ShadowCoord[1].z - bias)
+				{
+					visibility *= 0.5;
+				}
+			} 
+			else if(gl_LightSource[1].spotCutoff <= 90.0)
+			{
+				if ( texture( shadowMap1, (ShadowCoord[1].xy/ShadowCoord[1].w) ).z  <  (ShadowCoord[1].z-bias)/ShadowCoord[1].w )
+				{
+					visibility *= 0.5;
+				}
+			}
         }
     }
     else
