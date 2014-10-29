@@ -10,21 +10,18 @@ GLuint ShadowMap::_fbo[NUM_LIGHTS];
 
 void ShadowMap::Delete()
 {
-    if (_fbo != 0)
-    {
+    if (_fbo != 0) {
         for (int i = 0; i < NUM_LIGHTS; i++) { glDeleteFramebuffers(1, &_fbo[i]); }
     }
 
-    if (_depthMap != 0)
-    {
+    if (_depthMap != 0) {
         for (int i = 0; i < NUM_LIGHTS; i++) { glDeleteTextures(1, &_depthMap[i]); }
     }
 }
 
 bool ShadowMap::Create(unsigned int width, unsigned int height)
 {
-    for (int i = 0; i < NUM_LIGHTS; i++)
-    {
+    for (int i = 0; i < NUM_LIGHTS; i++) {
         size = glm::vec2(width, height);
         GLenum FBOstatus;
         // create a framebuffer object
@@ -49,8 +46,7 @@ bool ShadowMap::Create(unsigned int width, unsigned int height)
         // check FBO status
         FBOstatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
-        if (FBOstatus != GL_FRAMEBUFFER_COMPLETE)
-        {
+        if (FBOstatus != GL_FRAMEBUFFER_COMPLETE) {
             printf("GL_FRAMEBUFFER_COMPLETE failed, CANNOT use FBO\n");
         }
 
@@ -61,7 +57,7 @@ bool ShadowMap::Create(unsigned int width, unsigned int height)
     return true;
 }
 
-glm::mat4 ShadowMap::CalculateDepthVP(Light * light, int lightIndex)
+glm::mat4 ShadowMap::CalculateDepthVP(Light *light, int lightIndex)
 {
     float aspectRatio = size.x / size.y;
     // Light Params
@@ -71,13 +67,10 @@ glm::mat4 ShadowMap::CalculateDepthVP(Light * light, int lightIndex)
     glm::mat4 depthViewMatrix;
     glm::mat4 depthProjectionMatrix;
 
-    if (light->lightType == SPOT_LIGHT)
-    {
+    if (light->lightType == SPOT_LIGHT) {
         depthViewMatrix = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0, 1, 0));
-        depthProjectionMatrix = glm::perspective<float>(90.0f, aspectRatio, 1.0f, 2000.0f);
-    }
-    else
-    {
+        depthProjectionMatrix = glm::perspective<float>(90.0, aspectRatio, 1.0f, 2000.0f);
+    } else {
         depthProjectionMatrix = glm::ortho<float>(-1000, 1000, -1000, 1000, 1, 2000);
         depthViewMatrix = glm::lookAt(lightPos, glm::vec3(0, 0, -100), glm::vec3(0, 1, 0));
     }
@@ -87,7 +80,7 @@ glm::mat4 ShadowMap::CalculateDepthVP(Light * light, int lightIndex)
     return depthVP[lightIndex];
 }
 
-glm::mat4 ShadowMap::CalculateMVPMatrix(VisibleGameObject * model, int lightIndex)
+glm::mat4 ShadowMap::CalculateMVPMatrix(VisibleGameObject *model, int lightIndex)
 {
     glm::mat4 depthModel = glm::mat4(1);
     depthModel = glm::translate(depthModel, model->GetPosition());
@@ -97,7 +90,7 @@ glm::mat4 ShadowMap::CalculateMVPMatrix(VisibleGameObject * model, int lightInde
     return depthMVP[lightIndex];
 }
 
-glm::mat4 ShadowMap::CalculateBiasMVPMatrix(VisibleGameObject * model, int lightIndex)
+glm::mat4 ShadowMap::CalculateBiasMVPMatrix(VisibleGameObject *model, int lightIndex)
 {
     glm::mat4 depthModel = glm::mat4(1);
     depthModel = glm::translate(depthModel, model->GetPosition());

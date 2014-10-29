@@ -59,7 +59,7 @@ void main()
 			{
 				if ( texture( shadowMap0, (ShadowCoord[0].xy/ShadowCoord[0].w) ).z  <  (ShadowCoord[0].z-bias)/ShadowCoord[0].w )
 				{
-					visibility *= 0.5;
+					visibility *= 0.1;
 				}
 			}
 		}
@@ -76,7 +76,7 @@ void main()
 			{
 				if ( texture( shadowMap1, (ShadowCoord[1].xy/ShadowCoord[1].w) ).z  <  (ShadowCoord[1].z-bias)/ShadowCoord[1].w )
 				{
-					visibility *= 0.5;
+					visibility *= 0.1;
 				}
 			}
         }
@@ -130,7 +130,7 @@ void main()
         vec4 ambient = gl_FrontLightProduct[i].ambient;
         vec4 diffuse = gl_FrontLightProduct[i].diffuse * nDotL * cosTheta;
         vec4 specular = gl_FrontLightProduct[i].specular * power * pow(cosAlpha, 5);
-        color += (ambient + diffuse + specular) * att[i] * spot * visibility;
+        color += (ambient + diffuse + specular) * spot * visibility * att[i];
     }
 
     gl_FragColor = color * texture(colorMap, gl_TexCoord[0].st);
