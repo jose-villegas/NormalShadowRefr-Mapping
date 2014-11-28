@@ -8,3 +8,6 @@ Reflections, Refractions, Object Loading, Color Picking, Bump Mapping, Shadow Ma
 Dependencies: OpenGL 1.1, Glew, SFML 2.1, GLM
 
 ![alt tag](http://i.imgur.com/jFKkoJx.png)
+
+![alt tag](http://i.imgur.com/fWzno37.png)
+
